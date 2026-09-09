@@ -513,35 +513,145 @@ body {
     color: var(--gray);
 }
 
+@media (max-width: 768px) {
+    .part {
+        margin-bottom: 80px;
+    }
+
+    .part-head-text {
+        gap: 6px;
+    }
+
+    .part-title {
+        font-size: 16px;
+    }
+
+    .part-sub {
+        width: 100%;
+        font-size: 12px;
+    }
+
+    .toggle-formula {
+        font-size: 12px;
+    }
+
+    .summary-table {
+        overflow-x: auto;
+    }
+
+    .summary-head,
+    .summary-row {
+        grid-template-columns: 1.4fr 1fr 1fr;
+        gap: 8px;
+        padding: 11px 0;
+    }
+
+    .summary-cell {
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .grand-row .summary-cell {
+        font-size: 13px;
+    }
+}
+
 @media (max-width: 640px) {
     .nav {
-        padding: 16px 24px;
+        padding: 14px 20px;
     }
 
     .main {
-        padding: 40px 24px;
+        padding: 32px 20px;
+    }
+
+    .hero {
+        margin-bottom: 80px;
     }
 
     .hero-title {
-        font-size: 36px;
+        font-size: 32px;
+    }
+
+    .hero-subtitle {
+        font-size: 15px;
     }
 
     .calc-grid,
     .results-grid,
     .margin-grid {
         grid-template-columns: 1fr;
-        gap: 40px;
+        gap: 36px;
     }
 
     .input-group input {
-        font-size: 24px;
+        font-size: 26px;
+        padding: 12px 0;
+    }
+
+    .input-group label {
+        font-size: 11px;
+    }
+
+    .lock-toggle {
+        width: 28px;
+        height: 28px;
     }
 
     .result-number {
-        font-size: 32px;
+        font-size: 30px;
     }
 
     .result-number.total {
-        font-size: 48px;
+        font-size: 40px;
+    }
+
+    .cost-heading {
+        font-size: 13px;
+        margin-bottom: 24px;
+    }
+
+    .grand-total {
+        padding-top: 28px;
+    }
+
+    .results,
+    .history {
+        margin-top: 80px;
+    }
+
+    .calc-btn {
+        padding: 16px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-tagline {
+        display: none;
+    }
+
+    .currency-badge {
+        padding: 5px 8px;
+        font-size: 10px;
+    }
+
+    .toggle-wrap {
+        gap: 14px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .toggle-btn {
+        padding: 9px 14px;
+        font-size: 11px;
+    }
+
+    .summary-cell {
+        font-size: 11px;
+    }
+
+    .summary-row .summary-cell:first-child {
+        max-width: 110px;
     }
 }

@@ -13,15 +13,18 @@ function calculate() {
     const time = parseFloat(document.getElementById('time').value) || 0;
     const electricity = parseFloat(document.getElementById('electricity').value) || 0;
     const power = parseFloat(document.getElementById('power').value) || 0;
+    const daily = parseFloat(document.getElementById('daily').value) || 0;
     const failure = parseFloat(document.getElementById('failure').value) || 0;
 
     const materialCost = (weight / 1000) * filament;
     const electricCost = (power / 1000) * time * electricity;
-    const failureCost = (materialCost + electricCost) * (failure / 100);
-    const total = materialCost + electricCost + failureCost;
+    const rentCost = (time / 24) * daily;
+    const failureCost = (materialCost + electricCost + rentCost) * (failure / 100);
+    const total = materialCost + electricCost + rentCost + failureCost;
 
     document.getElementById('material-cost').textContent = formatINR(materialCost);
     document.getElementById('electric-cost').textContent = formatINR(electricCost);
+    document.getElementById('rent-cost').textContent = formatINR(rentCost);
     document.getElementById('failure-cost').textContent = formatINR(failureCost);
     document.getElementById('total-cost').textContent = formatINR(total);
 

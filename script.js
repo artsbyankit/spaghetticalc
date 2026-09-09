@@ -1,6 +1,6 @@
 let printHistory = JSON.parse(localStorage.getItem('printHistory') || '[]');
 let filamentMode = localStorage.getItem('filamentMode') || 'perspool';
-let marginPct = parseInt(localStorage.getItem('marginPct') || '40', 10);
+let marginPct = parseInt(localStorage.getItem('marginPct') || '0', 10);
 
 function initTheme() {
     const theme = localStorage.getItem('theme') || 'light';
@@ -208,18 +208,19 @@ function renderGstSplit(c) {
     document.getElementById('gst-total').textContent = formatINR(c.gstTotal);
 }
 
-function clearMarginActive() {
-    document.querySelectorAll('#margin-toggle .toggle-btn').forEach(btn => btn.classList.remove('active'));
-}
-
 function setMargin(pct) {
     marginPct = pct;
     localStorage.setItem('marginPct', String(pct));
-    document.getElementById('margin-custom').value = '';
     ['10', '20', '30', '40', '50'].forEach(id => {
         document.getElementById('margin-' + id).classList.toggle('active', parseInt(id, 10) === pct);
     });
     refreshLive();
+}
+
+function initMargin() {
+    setMargin(marginPct);
+    const presets = [10, 20, 30, 40, 50];
+    document.getElementById('margin-custom').value = presets.includes(marginPct) ? '' : String(marginPct);
 }
 
 function renderMarginSuggestion(c) {
@@ -327,7 +328,7 @@ function clearHistory() {
 }
 
 setFilamentMode(filamentMode);
-setMargin(marginPct);
+initMargin();
 initTheme();
 document.getElementById('base-filament').addEventListener('input', renderToggleFormula);
 document.getElementById('spools').addEventListener('input', renderToggleFormula);
@@ -336,7 +337,7 @@ document.getElementById('margin-custom').addEventListener('input', function () {
     if (!v || v <= 0) return;
     marginPct = Math.min(v, 100);
     localStorage.setItem('marginPct', String(marginPct));
-    clearMarginActive();
+    document.querySelectorAll('#margin-toggle .toggle-btn').forEach(btn => btn.classList.remove('active'));
     refreshLive();
 });
 initLocks();

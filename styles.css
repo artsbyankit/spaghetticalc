@@ -232,6 +232,12 @@ body {
     color: var(--gray);
 }
 
+.grand-total {
+    margin-top: 8px;
+    border-top: 1px solid var(--black);
+    padding-top: 40px;
+}
+
 .results-footer {
     padding-top: 40px;
     border-top: 1px solid var(--border);

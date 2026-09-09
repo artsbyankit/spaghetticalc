@@ -26,66 +26,95 @@
 
         <section class="calculator">
             <div class="calc-header">
-                <span class="calc-label">locked</span>
-                <span class="calc-label">set once</span>
+                <span class="calc-label">1 · filament & material</span>
             </div>
 
             <div class="calc-grid">
                 <div class="input-group">
-                    <label>tax rate (%)</label>
-                    <input type="number" id="tax" value="18" step="0.1">
+                    <label>filament 3-pack price (₹)</label>
+                    <input type="number" id="base-filament" value="1695" step="1">
                 </div>
 
                 <div class="input-group">
-                    <label>overhead per print (₹)</label>
-                    <input type="number" id="overhead" value="50" step="1">
+                    <label>shipping fee (₹)</label>
+                    <input type="number" id="shipping" value="150" step="1">
                 </div>
 
                 <div class="input-group">
-                    <label>electricity (₹/kWh)</label>
-                    <input type="number" id="electricity" value="7.88" step="0.01">
+                    <label>gst on filament (₹)</label>
+                    <input type="number" id="gst" value="332.10" step="0.01">
                 </div>
 
                 <div class="input-group">
-                    <label>printer wattage (a1 mini ≈ 80)</label>
-                    <input type="number" id="power" value="80" step="1">
+                    <label>spools bought</label>
+                    <input type="number" id="spools" value="3" step="1">
+                </div>
+
+                <div class="input-group">
+                    <label>grams per spool</label>
+                    <input type="number" id="spool-weight" value="1000" step="1">
+                </div>
+
+                <div class="input-group">
+                    <label>filament used per unit (g)</label>
+                    <input type="number" id="grams-used" value="180.20" step="0.01">
                 </div>
             </div>
 
-            <div class="calc-header" style="margin-top: 80px;">
-                <span class="calc-label">per print</span>
-                <span class="calc-label">what-if</span>
+            <div class="calc-header">
+                <span class="calc-label">2 · electricity · gujarat rgp urban</span>
             </div>
 
             <div class="calc-grid">
                 <div class="input-group">
-                    <label>filament (₹/kg)</label>
-                    <input type="number" id="filament" value="2000" step="1">
+                    <label>base energy rate (₹/kWh)</label>
+                    <input type="number" id="base-rate" value="4.15" step="0.01">
                 </div>
 
                 <div class="input-group">
-                    <label>filament used (grams)</label>
-                    <input type="number" id="weight" value="50" step="1">
+                    <label>fppas surcharge (₹/kWh)</label>
+                    <input type="number" id="fppas" value="2.70" step="0.01">
                 </div>
 
                 <div class="input-group">
-                    <label>print time (hours)</label>
-                    <input type="number" id="time" value="4" step="0.1">
+                    <label>electricity duty (%)</label>
+                    <input type="number" id="duty" value="15" step="1">
                 </div>
 
                 <div class="input-group">
-                    <label>printer rent (₹/day)</label>
-                    <input type="number" id="daily" value="300" step="1">
+                    <label>printer wattage (w)</label>
+                    <input type="number" id="power" value="120" step="1">
                 </div>
 
                 <div class="input-group">
-                    <label>consumables (₹)</label>
-                    <input type="number" id="consumables" value="10" step="1">
+                    <label>print time per unit (hrs)</label>
+                    <input type="number" id="time" value="10" step="0.1">
+                </div>
+            </div>
+
+            <div class="calc-header">
+                <span class="calc-label">3 · job & batch</span>
+            </div>
+
+            <div class="calc-grid">
+                <div class="input-group">
+                    <label>quantity ordered (units)</label>
+                    <input type="number" id="quantity" value="15" step="1">
                 </div>
 
                 <div class="input-group">
-                    <label>failure rate (%)</label>
-                    <input type="number" id="failure" value="10" step="1">
+                    <label>3d model cost (one-time ₹)</label>
+                    <input type="number" id="model-cost" value="100" step="1">
+                </div>
+
+                <div class="input-group">
+                    <label>maintenance buffer (%)</label>
+                    <input type="number" id="buffer" value="10" step="1">
+                </div>
+
+                <div class="input-group">
+                    <label>selling price per unit (₹)</label>
+                    <input type="number" id="sale" value="230" step="1">
                 </div>
             </div>
 
@@ -97,64 +126,129 @@
                 <span class="results-label">your damage</span>
             </div>
 
-            <h2 class="cost-heading">manufacturing cost</h2>
+            <h2 class="cost-heading">per-unit cost breakdown</h2>
             <div class="results-grid">
                 <div class="result-item">
-                    <span class="result-number" id="material-cost">₹0.00</span>
-                    <span class="result-label">material</span>
+                    <span class="result-number" id="filament-material">₹0.00</span>
+                    <span class="result-label">base filament</span>
                 </div>
 
                 <div class="result-item">
-                    <span class="result-number" id="electric-cost">₹0.00</span>
-                    <span class="result-label">electricity</span>
+                    <span class="result-number" id="shipping-alloc">₹0.00</span>
+                    <span class="result-label">shipping allocation</span>
                 </div>
 
                 <div class="result-item">
-                    <span class="result-number" id="rent-cost">₹0.00</span>
-                    <span class="result-label">printer rent</span>
+                    <span class="result-number" id="gst-alloc">₹0.00</span>
+                    <span class="result-label">gst allocation</span>
                 </div>
 
                 <div class="result-item">
-                    <span class="result-number" id="consumables-cost">₹0.00</span>
-                    <span class="result-label">consumables</span>
+                    <span class="result-number" id="filament-total">₹0.00</span>
+                    <span class="result-label">total filament / unit</span>
                 </div>
 
                 <div class="result-item">
-                    <span class="result-number" id="overhead-cost">₹0.00</span>
-                    <span class="result-label">overhead</span>
+                    <span class="result-number" id="elec-base">₹0.00</span>
+                    <span class="result-label">base electricity</span>
                 </div>
 
                 <div class="result-item">
-                    <span class="result-number" id="failure-cost">₹0.00</span>
-                    <span class="result-label">failure tax</span>
+                    <span class="result-number" id="elec-fppas">₹0.00</span>
+                    <span class="result-label">fppas surcharge</span>
                 </div>
 
                 <div class="result-item">
-                    <span class="result-number" id="tax-amount">₹0.00</span>
-                    <span class="result-label">gst (<span id="tax-label">18</span>%)</span>
+                    <span class="result-number" id="elec-duty">₹0.00</span>
+                    <span class="result-label">electricity duty</span>
                 </div>
 
                 <div class="result-item">
-                    <span class="result-number total" id="total-cost">₹0.00</span>
-                    <span class="result-label">total manufacturing cost</span>
+                    <span class="result-number" id="elec-total">₹0.00</span>
+                    <span class="result-label">total electricity / unit</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number" id="model-amortized">₹0.00</span>
+                    <span class="result-label">model amortized / unit</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number" id="buffer-cost">₹0.00</span>
+                    <span class="result-label">maintenance buffer</span>
                 </div>
             </div>
 
-            <h2 class="cost-heading">profit margin</h2>
+            <div class="results-grid grand-total">
+                <div class="result-item">
+                    <span class="result-number" id="unit-cost">₹0.00</span>
+                    <span class="result-label">total production cost / unit</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number" id="unit-profit">₹0.00</span>
+                    <span class="result-label">net profit / unit</span>
+                </div>
+            </div>
+
+            <h2 class="cost-heading">batch summary (n units)</h2>
+            <div class="results-grid">
+                <div class="result-item">
+                    <span class="result-number" id="total-revenue">₹0.00</span>
+                    <span class="result-label">total revenue</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number" id="total-filament-expense">₹0.00</span>
+                    <span class="result-label">total filament expense</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number" id="total-electric">₹0.00</span>
+                    <span class="result-label">total electricity</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number" id="total-model">₹0.00</span>
+                    <span class="result-label">model cost</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number" id="total-buffer">₹0.00</span>
+                    <span class="result-label">maintenance reserved</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number" id="net-profit">₹0.00</span>
+                    <span class="result-label">net cash profit</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number" id="unused-value">₹0.00</span>
+                    <span class="result-label">unused filament value</span>
+                </div>
+            </div>
+
+            <h2 class="cost-heading">pricing tiers</h2>
             <div class="margin-grid">
-                <div class="input-group">
-                    <label>your selling price (₹)</label>
-                    <input type="number" id="sale" step="1" oninput="calculateMargin()">
+                <div class="result-item">
+                    <span class="result-number" id="tier-breakeven">₹0.00</span>
+                    <span class="result-label">breakeven</span>
                 </div>
 
                 <div class="result-item">
-                    <span class="result-number" id="margin-amount">₹0.00</span>
-                    <span class="result-label">margin (₹)</span>
+                    <span class="result-number" id="tier-budget">₹0.00</span>
+                    <span class="result-label">budget · 25%</span>
                 </div>
 
                 <div class="result-item">
-                    <span class="result-number" id="margin-percent">0%</span>
-                    <span class="result-label">margin (%)</span>
+                    <span class="result-number" id="tier-standard">₹0.00</span>
+                    <span class="result-label">standard · 40%</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number" id="tier-commercial">₹0.00</span>
+                    <span class="result-label">commercial · 50%</span>
                 </div>
             </div>
 

@@ -329,3 +329,48 @@ initLocks();
 document.querySelectorAll('input[type="number"]').forEach(input => {
     input.addEventListener('input', refreshLive);
 });
+
+(function () {
+    const seq = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    let pos = 0;
+    let spinning = false;
+
+    function barrelRoll() {
+        if (spinning) return;
+        spinning = true;
+        document.body.classList.add('barrel');
+        setTimeout(() => {
+            document.body.classList.remove('barrel');
+            spinning = false;
+        }, 1300);
+    }
+
+    function noodleRain() {
+        for (let i = 0; i < 36; i++) {
+            const n = document.createElement('div');
+            n.className = 'noodle';
+            n.textContent = '🍝';
+            n.style.left = Math.random() * 100 + 'vw';
+            n.style.fontSize = (18 + Math.random() * 34) + 'px';
+            n.style.animationDelay = (Math.random() * 1.2) + 's';
+            n.style.setProperty('--drift', (Math.random() * 60 - 30) + 'px');
+            document.body.appendChild(n);
+            setTimeout(() => n.remove(), 3400);
+        }
+    }
+
+    document.addEventListener('keydown', e => {
+        const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+        pos = key === seq[pos] ? pos + 1 : (key === seq[0] ? 1 : 0);
+        if (pos === seq.length) {
+            pos = 0;
+            barrelRoll();
+            noodleRain();
+        }
+    });
+
+    document.querySelector('.brand-emoji').addEventListener('dblclick', () => {
+        barrelRoll();
+        noodleRain();
+    });
+})();

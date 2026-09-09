@@ -363,6 +363,31 @@ button:focus-visible {
     outline-offset: 2px;
 }
 
+body.barrel {
+    animation: barrel 1.2s ease-in-out;
+}
+
+@keyframes barrel {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.noodle {
+    position: fixed;
+    top: -12vh;
+    z-index: 9999;
+    line-height: 1;
+    pointer-events: none;
+    animation: noodle-fall 2.2s ease-in forwards;
+}
+
+@keyframes noodle-fall {
+    to {
+        transform: translateY(125vh) translateX(var(--drift)) rotate(540deg);
+    }
+}
+
 .calc-btn:active {
     opacity: 0.6;
 }

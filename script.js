@@ -336,44 +336,6 @@ function calculate() {
     renderHistory();
 }
 
-function exportHistory() {
-    const blob = new Blob([JSON.stringify(printHistory, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'spaghetti-history.json';
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-function importHistory(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-        try {
-            const items = JSON.parse(reader.result);
-            if (!Array.isArray(items)) throw new Error('not an array');
-            const existing = new Set(printHistory.map(item => JSON.stringify(item)));
-            items.forEach(item => {
-                if (!item || typeof item !== 'object') return;
-                const key = JSON.stringify(item);
-                if (!existing.has(key)) {
-                    printHistory.push(item);
-                    existing.add(key);
-                }
-            });
-            if (printHistory.length > 50) printHistory.length = 50;
-            localStorage.setItem('printHistory', JSON.stringify(printHistory));
-            renderHistory();
-        } catch (err) {
-            alert('could not import history — pick a file exported from spaghetticalc');
-        }
-    };
-    reader.readAsText(file);
-    event.target.value = '';
-}
-
 function renderHistory() {
     const list = document.getElementById('history-list');
     list.innerHTML = printHistory.map(item => `

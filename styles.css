@@ -682,12 +682,11 @@ body {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: 16px;
+    gap: 16px 32px;
     flex-wrap: wrap;
-    padding: 24px;
-    border: 1px solid var(--black);
+    padding: 28px 0 24px;
+    border-top: 1px solid var(--black);
     margin-bottom: 24px;
-    background: var(--light, #fff);
 }
 
 .print-total-label {
@@ -699,10 +698,11 @@ body {
 }
 
 .print-total-value {
-    font-size: 22px;
+    font-size: 26px;
     font-weight: 700;
     letter-spacing: -0.01em;
     font-variant-numeric: tabular-nums;
+    text-align: right;
 }
 
 .print-total-value .per {

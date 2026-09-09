@@ -83,7 +83,8 @@ function formatINR(amount) {
 }
 
 function num(id) {
-    return parseFloat(document.getElementById(id).value) || 0;
+    const el = document.getElementById(id);
+    return el ? (parseFloat(el.value) || 0) : 0;
 }
 
 function setText(id, value) {

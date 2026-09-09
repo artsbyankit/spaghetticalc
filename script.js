@@ -1,5 +1,12 @@
 let printHistory = JSON.parse(localStorage.getItem('printHistory') || '[]');
 
+function formatINR(amount) {
+    return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR'
+    }).format(amount);
+}
+
 function calculate() {
     const filament = parseFloat(document.getElementById('filament').value) || 0;
     const weight = parseFloat(document.getElementById('weight').value) || 0;
@@ -13,13 +20,13 @@ function calculate() {
     const failureCost = (materialCost + electricCost) * (failure / 100);
     const total = materialCost + electricCost + failureCost;
 
-    document.getElementById('material-cost').textContent = '$' + materialCost.toFixed(2);
-    document.getElementById('electric-cost').textContent = '$' + electricCost.toFixed(2);
-    document.getElementById('failure-cost').textContent = '$' + failureCost.toFixed(2);
-    document.getElementById('total-cost').textContent = '$' + total.toFixed(2);
+    document.getElementById('material-cost').textContent = formatINR(materialCost);
+    document.getElementById('electric-cost').textContent = formatINR(electricCost);
+    document.getElementById('failure-cost').textContent = formatINR(failureCost);
+    document.getElementById('total-cost').textContent = formatINR(total);
 
     const facts = [
-        `that's ${Math.floor(total / 0.5)} cans of soda you could've bought`,
+        `that's ${Math.floor(total / 40)} cans of soda you could've bought`,
         `your printer just printed money... out of your bank account`,
         `at least the spaghetti is plastic`,
         `the real cost is the friends we lost along the way`,
@@ -37,7 +44,7 @@ function calculate() {
     const historyItem = {
         weight: weight + 'g',
         time: time + 'h',
-        cost: '$' + total.toFixed(2),
+        cost: formatINR(total),
         date: new Date().toLocaleDateString()
     };
     printHistory.unshift(historyItem);

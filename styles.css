@@ -119,14 +119,6 @@ body {
     font-weight: 400;
 }
 
-.history-header {
-    display: flex;
-    justify-content: space-between;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--black);
-    margin-bottom: 40px;
-}
-
 .part {
     margin-bottom: 120px;
 }
@@ -169,13 +161,6 @@ body {
     color: var(--gray);
     font-weight: 400;
     letter-spacing: 0.02em;
-}
-
-.history-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 500;
 }
 
 .calc-grid {
@@ -353,8 +338,7 @@ button:focus-visible {
     outline-offset: 2px;
 }
 
-.calc-btn:active,
-.clear-btn:active {
+.calc-btn:active {
     opacity: 0.6;
 }
 
@@ -602,49 +586,6 @@ button:focus-visible {
     color: var(--gray);
 }
 
-.history {
-    margin-top: 120px;
-}
-
-.clear-btn {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    background: none;
-    border: none;
-    color: var(--gray);
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.clear-btn:hover {
-    color: var(--black);
-}
-
-.history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-}
-
-.history-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 0;
-    border-bottom: 1px solid var(--border);
-}
-
-.history-item-name {
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.history-item-cost {
-    font-size: 14px;
-    color: var(--gray);
-}
-
 .footer {
     padding: 40px 48px;
     border-top: 1px solid var(--border);
@@ -752,8 +693,7 @@ button:focus-visible {
         margin-bottom: 24px;
     }
 
-    .results,
-    .history {
+    .results {
         margin-top: 80px;
     }
 

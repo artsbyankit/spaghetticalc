@@ -1,4 +1,3 @@
-let printHistory = JSON.parse(localStorage.getItem('printHistory') || '[]');
 let filamentMode = localStorage.getItem('filamentMode') || 'perspool';
 let marginPct = parseInt(localStorage.getItem('marginPct') || '0', 10);
 
@@ -311,34 +310,6 @@ function calculate() {
     document.getElementById('sum-profit-batch').className = 'summary-cell bold-cell ' + (c.netProfit >= 0 ? 'profit' : 'loss');
 
     document.getElementById('results').style.display = 'block';
-
-    const historyItem = {
-        weight: c.gramsUsed + 'g',
-        time: c.hours + 'h',
-        units: c.quantity + ' u',
-        cost: formatINR(c.unitCost),
-        date: new Date().toLocaleDateString()
-    };
-    printHistory.unshift(historyItem);
-    if (printHistory.length > 50) printHistory.pop();
-    localStorage.setItem('printHistory', JSON.stringify(printHistory));
-    renderHistory();
-}
-
-function renderHistory() {
-    const list = document.getElementById('history-list');
-    list.innerHTML = printHistory.map(item => `
-        <div class="history-item">
-            <span class="history-item-name">${item.weight} · ${item.time} · ${item.units} · ${item.date}</span>
-            <span class="history-item-cost">${item.cost}</span>
-        </div>
-    `).join('');
-}
-
-function clearHistory() {
-    printHistory = [];
-    localStorage.removeItem('printHistory');
-    renderHistory();
 }
 
 setFilamentMode(filamentMode);
@@ -358,4 +329,3 @@ initLocks();
 document.querySelectorAll('input[type="number"]').forEach(input => {
     input.addEventListener('input', refreshLive);
 });
-renderHistory();

@@ -131,6 +131,18 @@ body {
     margin-bottom: 120px;
 }
 
+.part-materials { --accent: #e85d2f; }
+.part-batch     { --accent: #2f6fe4; }
+.part-time      { --accent: #16a394; }
+.part-electricity { --accent: #c9950a; }
+.part-sell      { --accent: #1fa55a; }
+
+:root[data-theme="dark"] .part-electricity { --accent: #eab308; }
+:root[data-theme="dark"] .part-time { --accent: #2dd4bf; }
+:root[data-theme="dark"] .part-sell { --accent: #4ade80; }
+:root[data-theme="dark"] .part-batch { --accent: #60a5fa; }
+:root[data-theme="dark"] .part-materials { --accent: #fb923c; }
+
 .part:last-of-type {
     margin-bottom: 40px;
 }
@@ -140,15 +152,15 @@ body {
     align-items: baseline;
     gap: 20px;
     padding-bottom: 16px;
-    border-bottom: 1px solid var(--black);
+    border-bottom: 1px solid var(--accent);
     margin-bottom: 40px;
 }
 
 .part-num {
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
-    color: var(--gray);
+    color: var(--accent);
 }
 
 .part-head-text {

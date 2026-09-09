@@ -25,104 +25,187 @@
         </section>
 
         <section class="calculator">
-            <div class="calc-header">
-                <span class="calc-label">1 · filament & material</span>
-            </div>
-
-            <div class="calc-grid">
-                <div class="toggle-wrap">
-                    <div class="toggle" id="filament-toggle" role="tablist">
-                        <button class="toggle-btn" id="mode-bulk" onclick="setFilamentMode('bulk')">bulk pack</button>
-                        <button class="toggle-btn" id="mode-perspool" onclick="setFilamentMode('perspool')">per spool</button>
+            <div class="part">
+                <div class="part-head">
+                    <span class="part-num">01</span>
+                    <div class="part-head-text">
+                        <h2 class="part-title">materials</h2>
+                        <p class="part-sub">filament · shipping · gst</p>
                     </div>
-                    <div class="toggle-formula" id="toggle-formula"></div>
                 </div>
 
-                <div class="input-group">
-                    <label id="filament-amount-label">total paid for pack (₹)</label>
-                    <input type="number" id="base-filament" value="1695" step="1">
-                </div>
+                <div class="calc-grid">
+                    <div class="toggle-wrap">
+                        <div class="toggle" id="filament-toggle" role="tablist">
+                            <button class="toggle-btn" id="mode-bulk" onclick="setFilamentMode('bulk')">bulk pack</button>
+                            <button class="toggle-btn" id="mode-perspool" onclick="setFilamentMode('perspool')">per spool</button>
+                        </div>
+                        <div class="toggle-formula" id="toggle-formula"></div>
+                    </div>
 
-                <div class="input-group">
-                    <label id="spools-label">spools in pack</label>
-                    <input type="number" id="spools" value="3" step="1">
-                </div>
+                    <div class="input-group">
+                        <label id="filament-amount-label">total paid for pack (₹)</label>
+                        <input type="number" id="base-filament" value="1695" step="1">
+                    </div>
 
-                <div class="input-group">
-                    <label>shipping fee (₹)</label>
-                    <input type="number" id="shipping" value="150" step="1">
-                </div>
+                    <div class="input-group">
+                        <label id="spools-label">spools in pack</label>
+                        <input type="number" id="spools" value="3" step="1">
+                    </div>
 
-                <div class="input-group">
-                    <label>gst on filament (₹)</label>
-                    <input type="number" id="gst" value="332.10" step="0.01">
-                </div>
+                    <div class="input-group locked" data-lock>
+                        <label>
+                            <span>shipping fee (₹)</span>
+                            <button type="button" class="lock-toggle" title="double-click to unlock">
+                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
+                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
+                            </button>
+                        </label>
+                        <input type="number" id="shipping" value="150" step="1" disabled>
+                    </div>
 
-                <div class="input-group">
-                    <label>grams per spool</label>
-                    <input type="number" id="spool-weight" value="1000" step="1">
-                </div>
+                    <div class="input-group locked" data-lock>
+                        <label>
+                            <span>gst on filament (₹)</span>
+                            <button type="button" class="lock-toggle" title="double-click to unlock">
+                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
+                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
+                            </button>
+                        </label>
+                        <input type="number" id="gst" value="332.10" step="0.01" disabled>
+                    </div>
 
-                <div class="input-group">
-                    <label>filament used per unit (g)</label>
-                    <input type="number" id="grams-used" value="180.20" step="0.01">
-                </div>
-            </div>
+                    <div class="input-group">
+                        <label>grams per spool</label>
+                        <input type="number" id="spool-weight" value="1000" step="1">
+                    </div>
 
-            <div class="calc-header">
-                <span class="calc-label">2 · electricity · gujarat rgp urban</span>
-            </div>
-
-            <div class="calc-grid">
-                <div class="input-group">
-                    <label>base energy rate (₹/kWh)</label>
-                    <input type="number" id="base-rate" value="4.15" step="0.01">
-                </div>
-
-                <div class="input-group">
-                    <label>fppas surcharge (₹/kWh)</label>
-                    <input type="number" id="fppas" value="2.70" step="0.01">
-                </div>
-
-                <div class="input-group">
-                    <label>electricity duty (%)</label>
-                    <input type="number" id="duty" value="15" step="1">
-                </div>
-
-                <div class="input-group">
-                    <label>printer wattage (w)</label>
-                    <input type="number" id="power" value="120" step="1">
-                </div>
-
-                <div class="input-group">
-                    <label>print time per unit (hrs)</label>
-                    <input type="number" id="time" value="10" step="0.1">
+                    <div class="input-group">
+                        <label>filament used per unit (g)</label>
+                        <input type="number" id="grams-used" value="180.20" step="0.01">
+                    </div>
                 </div>
             </div>
 
-            <div class="calc-header">
-                <span class="calc-label">3 · job & batch</span>
+            <div class="part">
+                <div class="part-head">
+                    <span class="part-num">02</span>
+                    <div class="part-head-text">
+                        <h2 class="part-title">electricity</h2>
+                        <p class="part-sub">gujarat rgp urban tariff</p>
+                    </div>
+                </div>
+
+                <div class="calc-grid">
+                    <div class="input-group locked" data-lock>
+                        <label>
+                            <span>base energy rate (₹/kWh)</span>
+                            <button type="button" class="lock-toggle" title="double-click to unlock">
+                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
+                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
+                            </button>
+                        </label>
+                        <input type="number" id="base-rate" value="4.15" step="0.01" disabled>
+                    </div>
+
+                    <div class="input-group locked" data-lock>
+                        <label>
+                            <span>fppas surcharge (₹/kWh)</span>
+                            <button type="button" class="lock-toggle" title="double-click to unlock">
+                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
+                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
+                            </button>
+                        </label>
+                        <input type="number" id="fppas" value="2.70" step="0.01" disabled>
+                    </div>
+
+                    <div class="input-group locked" data-lock>
+                        <label>
+                            <span>electricity duty (%)</span>
+                            <button type="button" class="lock-toggle" title="double-click to unlock">
+                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
+                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
+                            </button>
+                        </label>
+                        <input type="number" id="duty" value="15" step="1" disabled>
+                    </div>
+
+                    <div class="input-group locked" data-lock>
+                        <label>
+                            <span>printer wattage (w)</span>
+                            <button type="button" class="lock-toggle" title="double-click to unlock">
+                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
+                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
+                            </button>
+                        </label>
+                        <input type="number" id="power" value="120" step="1" disabled>
+                    </div>
+                </div>
             </div>
 
-            <div class="calc-grid">
-                <div class="input-group">
-                    <label>quantity ordered (units)</label>
-                    <input type="number" id="quantity" value="15" step="1">
+            <div class="part">
+                <div class="part-head">
+                    <span class="part-num">03</span>
+                    <div class="part-head-text">
+                        <h2 class="part-title">time</h2>
+                        <p class="part-sub">print hours · machine rent</p>
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <label>3d model cost (one-time ₹)</label>
-                    <input type="number" id="model-cost" value="100" step="1">
+                <div class="calc-grid">
+                    <div class="input-group">
+                        <label>print time per unit (hrs)</label>
+                        <input type="number" id="time" value="10" step="0.1">
+                    </div>
+
+                    <div class="input-group locked" data-lock>
+                        <label>
+                            <span>printer rent (₹/day)</span>
+                            <button type="button" class="lock-toggle" title="double-click to unlock">
+                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
+                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
+                            </button>
+                        </label>
+                        <input type="number" id="daily" value="300" step="1" disabled>
+                    </div>
+                </div>
+            </div>
+
+            <div class="part">
+                <div class="part-head">
+                    <span class="part-num">04</span>
+                    <div class="part-head-text">
+                        <h2 class="part-title">job & batch</h2>
+                        <p class="part-sub">quantity · model · buffer · price</p>
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <label>maintenance buffer (%)</label>
-                    <input type="number" id="buffer" value="10" step="1">
-                </div>
+                <div class="calc-grid">
+                    <div class="input-group">
+                        <label>quantity ordered (units)</label>
+                        <input type="number" id="quantity" value="15" step="1">
+                    </div>
 
-                <div class="input-group">
-                    <label>selling price per unit (₹)</label>
-                    <input type="number" id="sale" value="230" step="1">
+                    <div class="input-group">
+                        <label>3d model cost (one-time ₹)</label>
+                        <input type="number" id="model-cost" value="100" step="1">
+                    </div>
+
+                    <div class="input-group locked" data-lock>
+                        <label>
+                            <span>maintenance buffer (%)</span>
+                            <button type="button" class="lock-toggle" title="double-click to unlock">
+                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
+                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
+                            </button>
+                        </label>
+                        <input type="number" id="buffer" value="10" step="1" disabled>
+                    </div>
+
+                    <div class="input-group">
+                        <label>selling price per unit (₹)</label>
+                        <input type="number" id="sale" value="230" step="1">
+                    </div>
                 </div>
             </div>
 
@@ -174,6 +257,11 @@
                 <div class="result-item">
                     <span class="result-number" id="elec-total">₹0.00</span>
                     <span class="result-label">total electricity / unit</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number" id="rent-cost">₹0.00</span>
+                    <span class="result-label">machine rent / unit</span>
                 </div>
 
                 <div class="result-item">
@@ -312,6 +400,12 @@
                     <span class="summary-cell label-cell">total electricity</span>
                     <span class="summary-cell bold-cell" id="sum-elec-unit">₹0.00</span>
                     <span class="summary-cell bold-cell" id="sum-elec-batch">₹0.00</span>
+                </div>
+
+                <div class="summary-row">
+                    <span class="summary-cell label-cell">machine rent</span>
+                    <span class="summary-cell" id="sum-rent-unit">₹0.00</span>
+                    <span class="summary-cell" id="sum-rent-batch">₹0.00</span>
                 </div>
 
                 <div class="summary-row">

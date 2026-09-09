@@ -1,6 +1,39 @@
 let printHistory = JSON.parse(localStorage.getItem('printHistory') || '[]');
 let filamentMode = localStorage.getItem('filamentMode') || 'bulk';
 
+function initLocks() {
+    document.querySelectorAll('[data-lock]').forEach(group => {
+        const input = group.querySelector('input');
+        const stored = localStorage.getItem('lock-' + input.id);
+        const isLocked = stored != null ? stored === '1' : true;
+        applyLock(group, input, isLocked);
+
+        input.addEventListener('input', () => {
+            localStorage.setItem('val-' + input.id, input.value);
+        });
+    });
+}
+
+function applyLock(group, input, isLocked) {
+    input.disabled = isLocked;
+    group.classList.toggle('locked', isLocked);
+    group.classList.toggle('unlocked', !isLocked);
+    group.querySelector('.lock-toggle').title = isLocked ? 'double-click to unlock' : 'double-click to lock';
+
+    const storedVal = localStorage.getItem('val-' + input.id);
+    if (storedVal != null) input.value = storedVal;
+}
+
+document.addEventListener('dblclick', function (e) {
+    const toggle = e.target.closest('.lock-toggle');
+    if (!toggle) return;
+    const group = toggle.closest('[data-lock]');
+    const input = group.querySelector('input');
+    const nextLocked = !input.disabled;
+    localStorage.setItem('lock-' + input.id, nextLocked ? '1' : '0');
+    applyLock(group, input, nextLocked);
+});
+
 function setFilamentMode(mode) {
     filamentMode = mode;
     localStorage.setItem('filamentMode', mode);
@@ -91,7 +124,11 @@ function calculate() {
     const elecDuty = (elecBase + elecFppas) * (duty / 100);
     const elecTotal = powerKW * hours * effectiveRate;
 
-    // 3. JOB & BATCH
+    // 3. TIME
+    const daily = num('daily');
+    const rentCost = (hours / 24) * daily;
+
+    // 4. JOB & BATCH
     const quantity = num('quantity');
     const modelCost = num('model-cost');
     const bufferPct = num('buffer');
@@ -100,7 +137,7 @@ function calculate() {
     const modelAmortized = modelCost / quantity;
     const bufferCost = (bufferPct / 100) * filamentTotal;
 
-    const unitCost = filamentTotal + elecTotal + modelAmortized + bufferCost;
+    const unitCost = filamentTotal + elecTotal + rentCost + modelAmortized + bufferCost;
     const unitProfit = sale - unitCost;
     const unitProfitPct = sale > 0 ? (unitProfit / sale) * 100 : 0;
 
@@ -126,9 +163,10 @@ function calculate() {
     const totalRevenue = sale * quantity;
     const totalFilamentExpense = totalFilamentUsed * costPerGram;
     const totalElectricity = elecTotal * quantity;
+    const totalRent = rentCost * quantity;
     const totalModel = modelCost;
     const totalBuffer = totalFilamentExpense * (bufferPct / 100);
-    const totalExpenses = totalFilamentExpense + totalElectricity + totalModel + totalBuffer;
+    const totalExpenses = totalFilamentExpense + totalElectricity + totalRent + totalModel + totalBuffer;
     const netProfit = totalRevenue - totalExpenses;
     const unusedGrams = totalWeight - totalFilamentUsed;
     const unusedValue = unusedGrams > 0 ? unusedGrams * costPerGram : 0;
@@ -167,6 +205,9 @@ function calculate() {
     setText('sum-elec-duty-batch', elecDuty * quantity);
     setText('sum-elec-unit', elecTotal);
     setText('sum-elec-batch', elecTotal * quantity);
+
+    setText('sum-rent-unit', rentCost);
+    setText('sum-rent-batch', totalRent);
 
     setText('sum-model-unit', modelAmortized);
     setText('sum-model-batch', modelCost);
@@ -233,4 +274,5 @@ function clearHistory() {
 setFilamentMode(filamentMode);
 document.getElementById('base-filament').addEventListener('input', renderToggleFormula);
 document.getElementById('spools').addEventListener('input', renderToggleFormula);
+initLocks();
 renderHistory();

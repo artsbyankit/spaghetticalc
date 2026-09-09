@@ -2,10 +2,26 @@ let printHistory = JSON.parse(localStorage.getItem('printHistory') || '[]');
 let filamentMode = localStorage.getItem('filamentMode') || 'perspool';
 let marginPct = parseInt(localStorage.getItem('marginPct') || '0', 10);
 
+function systemTheme() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+}
+
 function initTheme() {
-    const theme = localStorage.getItem('theme') || 'light';
+    const stored = localStorage.getItem('theme');
+    const theme = stored || systemTheme();
     document.documentElement.setAttribute('data-theme', theme);
     applyThemeColor(theme);
+
+    if (!stored) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (localStorage.getItem('theme')) return;
+            const next = e.matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            applyThemeColor(next);
+        });
+    }
 }
 
 function applyThemeColor(theme) {

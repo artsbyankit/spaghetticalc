@@ -90,36 +90,6 @@ body {
     display: none;
 }
 
-.currency-select {
-    font-family: inherit;
-    font-size: 14px;
-    padding: 6px 12px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--black);
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.2s;
-}
-
-.currency-select:hover {
-    border-color: var(--black);
-}
-
-.currency-select:focus {
-    border-color: var(--black);
-}
-
-.currency-badge {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 6px 12px;
-    border: 1px solid var(--border);
-    color: var(--gray);
-}
-
 .main {
     max-width: 800px;
     margin: 0 auto;
@@ -149,8 +119,6 @@ body {
     font-weight: 400;
 }
 
-.calc-header,
-.results-header,
 .history-header {
     display: flex;
     justify-content: space-between;
@@ -194,7 +162,6 @@ body {
     font-size: 20px;
     font-weight: 600;
     letter-spacing: -0.02em;
-    text-transform: none;
 }
 
 .part-sub {
@@ -204,8 +171,6 @@ body {
     letter-spacing: 0.02em;
 }
 
-.calc-label,
-.results-label,
 .history-label {
     font-size: 11px;
     text-transform: uppercase;
@@ -528,10 +493,6 @@ button:focus-visible {
     opacity: 1;
 }
 
-.input-group.locked input {
-    color: var(--black);
-}
-
 .input-group input {
     width: 100%;
     padding: 16px 0;
@@ -579,64 +540,12 @@ button:focus-visible {
     margin-top: 120px;
 }
 
-.results-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    margin-bottom: 60px;
-}
-
-.result-item {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.result-number {
-    font-size: 48px;
-    font-weight: 300;
-    letter-spacing: -0.03em;
-}
-
-.result-number.total {
-    font-size: 64px;
-    font-weight: 400;
-}
-
-.result-number.profit {
-    color: var(--black);
-}
-
-.result-number.loss {
-    color: var(--gray);
-}
-
 .cost-heading {
     font-size: 14px;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: 32px;
-}
-
-.margin-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 60px;
-    margin-bottom: 60px;
-}
-
-.result-label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--gray);
-}
-
-.grand-total {
-    margin-top: 8px;
-    border-top: 1px solid var(--black);
-    padding-top: 40px;
 }
 
 .summary-table {
@@ -691,17 +600,6 @@ button:focus-visible {
 
 .summary-cell.loss {
     color: var(--gray);
-}
-
-.results-footer {
-    padding-top: 40px;
-    border-top: 1px solid var(--border);
-}
-
-.results-footer p {
-    font-size: 14px;
-    color: var(--gray);
-    font-style: italic;
 }
 
 .history {
@@ -830,9 +728,7 @@ button:focus-visible {
         font-size: 12px;
     }
 
-    .calc-grid,
-    .results-grid,
-    .margin-grid {
+    .calc-grid {
         grid-template-columns: 1fr;
         gap: 36px;
     }
@@ -851,21 +747,9 @@ button:focus-visible {
         height: 28px;
     }
 
-    .result-number {
-        font-size: 30px;
-    }
-
-    .result-number.total {
-        font-size: 40px;
-    }
-
     .cost-heading {
         font-size: 13px;
         margin-bottom: 24px;
-    }
-
-    .grand-total {
-        padding-top: 28px;
     }
 
     .results,
@@ -893,11 +777,6 @@ button:focus-visible {
 @media (max-width: 480px) {
     .nav-tagline {
         display: none;
-    }
-
-    .currency-badge {
-        padding: 5px 8px;
-        font-size: 10px;
     }
 
     .toggle-wrap {

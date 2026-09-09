@@ -80,13 +80,8 @@ function setFilamentMode(mode) {
     document.getElementById('filament-amount-label').textContent = isBulk ? 'total paid for pack (₹)' : 'price per spool (₹)';
     document.getElementById('spools-label').textContent = isBulk ? 'spools in pack' : 'spools bought';
 
-    if (isBulk) {
-        document.getElementById('base-filament').value = 565;
-        document.getElementById('spools').value = 1;
-    } else {
-        document.getElementById('base-filament').value = 565;
-        document.getElementById('spools').value = 1;
-    }
+    document.getElementById('base-filament').value = 565;
+    document.getElementById('spools').value = 1;
 
     renderToggleFormula();
     refreshLive();
@@ -184,13 +179,11 @@ function computeCosts() {
     // 5. SELL IT
     const margin = marginPct;
     const marginPrice = margin >= 100 ? unitCost : unitCost / ((100 - margin) / 100);
-    const marginProfit = marginPrice - unitCost;
     const soldProfit = sale - unitCost;
     const soldPct = sale > 0 ? (soldProfit / sale) * 100 : 0;
 
     const effectiveUnitSale = sale > 0 ? sale : marginPrice;
     const unitProfit = effectiveUnitSale - unitCost;
-    const unitProfitPct = effectiveUnitSale > 0 ? (unitProfit / effectiveUnitSale) * 100 : 0;
 
     // batch summary
     const totalFilamentUsed = gramsUsed * quantity;
@@ -202,19 +195,15 @@ function computeCosts() {
     const totalBuffer = totalFilamentExpense * (bufferPct / 100);
     const totalExpenses = totalFilamentExpense + totalElectricity + totalRent + totalModel + totalBuffer;
     const netProfit = totalRevenue - totalExpenses;
-    const unusedGrams = totalWeight - totalFilamentUsed;
-    const unusedValue = unusedGrams > 0 ? unusedGrams * costPerGram : 0;
 
     return {
         filamentMaterial, shippingAlloc, gstAlloc, filamentTotal,
         sgst, cgst, gstTotal: gst,
         elecBase, elecFppas, elecDuty, elecTotal, rentCost,
-        modelAmortized, bufferCost, unitCost, unitProfit, unitProfitPct,
-        margin, marginPrice, marginProfit, soldProfit, soldPct,
+        modelAmortized, bufferCost, unitCost, unitProfit,
+        margin, marginPrice, soldProfit, soldPct,
         effectiveUnitSale, quantity, sale, gramsUsed, hours,
-        totalFilamentUsed, totalRevenue, totalFilamentExpense, totalElectricity,
-        totalRent, totalModel, totalBuffer, totalExpenses, netProfit,
-        unusedGrams, unusedValue
+        totalModel, totalBuffer, totalExpenses, netProfit
     };
 }
 
@@ -369,5 +358,4 @@ initLocks();
 document.querySelectorAll('input[type="number"]').forEach(input => {
     input.addEventListener('input', refreshLive);
 });
-renderSectionTotals(computeCosts());
 renderHistory();

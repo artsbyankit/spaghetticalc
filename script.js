@@ -1,4 +1,25 @@
 let printHistory = JSON.parse(localStorage.getItem('printHistory') || '[]');
+let filamentMode = localStorage.getItem('filamentMode') || 'bulk';
+
+function setFilamentMode(mode) {
+    filamentMode = mode;
+    localStorage.setItem('filamentMode', mode);
+
+    const isBulk = mode === 'bulk';
+    document.getElementById('mode-bulk').classList.toggle('active', isBulk);
+    document.getElementById('mode-perspool').classList.toggle('active', !isBulk);
+    document.getElementById('filament-amount-label').textContent = isBulk ? 'total paid for pack (₹)' : 'price per spool (₹)';
+    document.getElementById('spools-label').textContent = isBulk ? 'spools in pack' : 'spools bought';
+    document.getElementById('toggle-hint').textContent = isBulk ? 'total paid for the whole pack' : 'price for one spool × how many you bought';
+
+    if (isBulk) {
+        document.getElementById('base-filament').value = 1695;
+        document.getElementById('spools').value = 3;
+    } else {
+        document.getElementById('base-filament').value = 600;
+        document.getElementById('spools').value = 3;
+    }
+}
 
 function formatINR(amount) {
     return new Intl.NumberFormat('en-IN', {
@@ -26,7 +47,8 @@ function calculate() {
     const spoolWeight = num('spool-weight');
     const gramsUsed = num('grams-used');
 
-    const totalInvoice = baseFilament + shipping + gst;
+    const baseSubtotal = filamentMode === 'bulk' ? baseFilament : baseFilament * spools;
+    const totalInvoice = baseSubtotal + shipping + gst;
     const totalWeight = spools * spoolWeight;
     const costPerGram = totalInvoice / totalWeight;
 
@@ -109,6 +131,40 @@ function calculate() {
     setText('tier-standard', unitCost / 0.60);
     setText('tier-commercial', unitCost / 0.50);
 
+    // full breakdown · per unit vs batch
+    setText('sum-film-mat-unit', filamentMaterial);
+    setText('sum-film-mat-batch', filamentMaterial * quantity);
+    setText('sum-ship-unit', shippingAlloc);
+    setText('sum-ship-batch', shippingAlloc * quantity);
+    setText('sum-gst-unit', gstAlloc);
+    setText('sum-gst-batch', gstAlloc * quantity);
+    setText('sum-film-unit', filamentTotal);
+    setText('sum-film-batch', filamentTotal * quantity);
+
+    setText('sum-elec-base-unit', elecBase);
+    setText('sum-elec-base-batch', elecBase * quantity);
+    setText('sum-elec-fppas-unit', elecFppas);
+    setText('sum-elec-fppas-batch', elecFppas * quantity);
+    setText('sum-elec-duty-unit', elecDuty);
+    setText('sum-elec-duty-batch', elecDuty * quantity);
+    setText('sum-elec-unit', elecTotal);
+    setText('sum-elec-batch', elecTotal * quantity);
+
+    setText('sum-model-unit', modelAmortized);
+    setText('sum-model-batch', modelCost);
+    setText('sum-buffer-unit', bufferCost);
+    setText('sum-buffer-batch', totalBuffer);
+
+    setText('sum-cost-unit', unitCost);
+    setText('sum-cost-batch', totalExpenses);
+    setText('sum-rev-unit', sale);
+    setText('sum-rev-batch', totalRevenue);
+    setText('sum-profit-unit', unitProfit);
+    setText('sum-profit-batch', netProfit);
+
+    document.getElementById('sum-profit-unit').className = 'summary-cell bold-cell ' + (unitProfit >= 0 ? 'profit' : 'loss');
+    document.getElementById('sum-profit-batch').className = 'summary-cell bold-cell ' + (netProfit >= 0 ? 'profit' : 'loss');
+
     // fun facts
     const facts = [
         `that's ${Math.max(1, Math.floor(netProfit / 40))} cans of soda in profit`,
@@ -156,4 +212,5 @@ function clearHistory() {
     renderHistory();
 }
 
+setFilamentMode(filamentMode);
 renderHistory();

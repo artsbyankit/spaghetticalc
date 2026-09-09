@@ -238,6 +238,60 @@ body {
     padding-top: 40px;
 }
 
+.summary-table {
+    border-top: 1px solid var(--black);
+}
+
+.summary-head,
+.summary-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.summary-head {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    border-bottom: 1px solid var(--black);
+}
+
+.summary-cell {
+    font-size: 14px;
+}
+
+.summary-cell.label-cell {
+    font-weight: 500;
+}
+
+.summary-cell.bold-cell {
+    font-weight: 600;
+}
+
+.total-row .summary-cell {
+    font-weight: 600;
+}
+
+.grand-row {
+    background: var(--light-gray);
+}
+
+.grand-row .summary-cell {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.summary-cell.profit {
+    color: var(--black);
+}
+
+.summary-cell.loss {
+    color: var(--gray);
+}
+
 .results-footer {
     padding-top: 40px;
     border-top: 1px solid var(--border);

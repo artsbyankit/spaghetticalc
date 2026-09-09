@@ -30,9 +30,22 @@
             </div>
 
             <div class="calc-grid">
+                <div class="toggle-wrap">
+                    <div class="toggle" id="filament-toggle">
+                        <button class="toggle-btn active" id="mode-bulk" onclick="setFilamentMode('bulk')">bulk pack</button>
+                        <button class="toggle-btn" id="mode-perspool" onclick="setFilamentMode('perspool')">per spool</button>
+                    </div>
+                    <span class="toggle-hint" id="toggle-hint">total paid for the whole pack</span>
+                </div>
+
                 <div class="input-group">
-                    <label>filament 3-pack price (₹)</label>
+                    <label id="filament-amount-label">total paid for pack (₹)</label>
                     <input type="number" id="base-filament" value="1695" step="1">
+                </div>
+
+                <div class="input-group">
+                    <label id="spools-label">spools in pack</label>
+                    <input type="number" id="spools" value="3" step="1">
                 </div>
 
                 <div class="input-group">
@@ -43,11 +56,6 @@
                 <div class="input-group">
                     <label>gst on filament (₹)</label>
                     <input type="number" id="gst" value="332.10" step="0.01">
-                </div>
-
-                <div class="input-group">
-                    <label>spools bought</label>
-                    <input type="number" id="spools" value="3" step="1">
                 </div>
 
                 <div class="input-group">
@@ -254,6 +262,84 @@
 
             <div class="results-footer">
                 <p id="fun-fact"></p>
+            </div>
+
+            <h2 class="cost-heading" style="margin-top: 120px;">full breakdown · per unit vs batch</h2>
+            <div class="summary-table">
+                <div class="summary-head">
+                    <span class="summary-cell label-cell">line item</span>
+                    <span class="summary-cell">per unit</span>
+                    <span class="summary-cell">batch total</span>
+                </div>
+
+                <div class="summary-row">
+                    <span class="summary-cell label-cell">base filament</span>
+                    <span class="summary-cell" id="sum-film-mat-unit">₹0.00</span>
+                    <span class="summary-cell" id="sum-film-mat-batch">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-cell label-cell">shipping allocation</span>
+                    <span class="summary-cell" id="sum-ship-unit">₹0.00</span>
+                    <span class="summary-cell" id="sum-ship-batch">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-cell label-cell">gst allocation</span>
+                    <span class="summary-cell" id="sum-gst-unit">₹0.00</span>
+                    <span class="summary-cell" id="sum-gst-batch">₹0.00</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span class="summary-cell label-cell">total filament</span>
+                    <span class="summary-cell bold-cell" id="sum-film-unit">₹0.00</span>
+                    <span class="summary-cell bold-cell" id="sum-film-batch">₹0.00</span>
+                </div>
+
+                <div class="summary-row">
+                    <span class="summary-cell label-cell">base electricity</span>
+                    <span class="summary-cell" id="sum-elec-base-unit">₹0.00</span>
+                    <span class="summary-cell" id="sum-elec-base-batch">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-cell label-cell">fppas surcharge</span>
+                    <span class="summary-cell" id="sum-elec-fppas-unit">₹0.00</span>
+                    <span class="summary-cell" id="sum-elec-fppas-batch">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-cell label-cell">electricity duty</span>
+                    <span class="summary-cell" id="sum-elec-duty-unit">₹0.00</span>
+                    <span class="summary-cell" id="sum-elec-duty-batch">₹0.00</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span class="summary-cell label-cell">total electricity</span>
+                    <span class="summary-cell bold-cell" id="sum-elec-unit">₹0.00</span>
+                    <span class="summary-cell bold-cell" id="sum-elec-batch">₹0.00</span>
+                </div>
+
+                <div class="summary-row">
+                    <span class="summary-cell label-cell">3d model (amortized)</span>
+                    <span class="summary-cell" id="sum-model-unit">₹0.00</span>
+                    <span class="summary-cell" id="sum-model-batch">₹0.00</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span class="summary-cell label-cell">maintenance buffer</span>
+                    <span class="summary-cell bold-cell" id="sum-buffer-unit">₹0.00</span>
+                    <span class="summary-cell bold-cell" id="sum-buffer-batch">₹0.00</span>
+                </div>
+
+                <div class="summary-row grand-row">
+                    <span class="summary-cell label-cell">total production cost</span>
+                    <span class="summary-cell bold-cell" id="sum-cost-unit">₹0.00</span>
+                    <span class="summary-cell bold-cell" id="sum-cost-batch">₹0.00</span>
+                </div>
+                <div class="summary-row grand-row">
+                    <span class="summary-cell label-cell">revenue (price × qty)</span>
+                    <span class="summary-cell" id="sum-rev-unit">₹0.00</span>
+                    <span class="summary-cell bold-cell" id="sum-rev-batch">₹0.00</span>
+                </div>
+                <div class="summary-row grand-row">
+                    <span class="summary-cell label-cell">net profit</span>
+                    <span class="summary-cell bold-cell" id="sum-profit-unit">₹0.00</span>
+                    <span class="summary-cell bold-cell" id="sum-profit-batch">₹0.00</span>
+                </div>
             </div>
         </section>
 

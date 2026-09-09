@@ -53,17 +53,6 @@ body {
     color: var(--gray);
 }
 
-.print-toggle {
-    display: inline-flex;
-    border: 1px solid var(--border);
-}
-
-.toggle-btn-sm {
-    font-size: 11px;
-    padding: 7px 12px;
-    letter-spacing: 0.08em;
-}
-
 .theme-toggle {
     display: inline-flex;
     align-items: center;

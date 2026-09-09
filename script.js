@@ -159,6 +159,11 @@ function computeCosts() {
     const unitProfit = sale - unitCost;
     const unitProfitPct = sale > 0 ? (unitProfit / sale) * 100 : 0;
 
+    // 5. SELL IT
+    const margin = num('margin');
+    const marginPrice = margin >= 100 ? unitCost : unitCost / ((100 - margin) / 100);
+    const marginProfit = marginPrice - unitCost;
+
     // batch summary
     const totalFilamentUsed = gramsUsed * quantity;
     const totalRevenue = sale * quantity;
@@ -177,6 +182,7 @@ function computeCosts() {
         sgst, cgst, gstTotal: gst,
         elecBase, elecFppas, elecDuty, elecTotal, rentCost,
         modelAmortized, bufferCost, unitCost, unitProfit, unitProfitPct,
+        margin, marginPrice, marginProfit,
         quantity, sale, gramsUsed, hours,
         totalFilamentUsed, totalRevenue, totalFilamentExpense, totalElectricity,
         totalRent, totalModel, totalBuffer, totalExpenses, netProfit,
@@ -199,51 +205,21 @@ function renderGstSplit(c) {
     document.getElementById('gst-total').textContent = formatINR(c.gstTotal);
 }
 
+function renderMarginSuggestion(c) {
+    document.getElementById('margin-suggest').innerHTML = `${formatINR(c.marginPrice)} <span class="per">/ unit</span> <span class="batch-total">· profit ${formatINR(c.marginProfit)}</span>`;
+}
+
 function refreshLive() {
     const c = computeCosts();
     renderSectionTotals(c);
     renderGstSplit(c);
+    renderMarginSuggestion(c);
     document.getElementById('live-unit').innerHTML = formatINR(c.unitCost);
     document.getElementById('live-batch').innerHTML = formatINR(c.totalExpenses);
 }
 
 function calculate() {
     const c = computeCosts();
-
-    // per-unit display
-    setText('filament-material', c.filamentMaterial);
-    setText('shipping-alloc', c.shippingAlloc);
-    setText('gst-alloc', c.gstAlloc);
-    setText('filament-total', c.filamentTotal);
-    setText('elec-base', c.elecBase);
-    setText('elec-fppas', c.elecFppas);
-    setText('elec-duty', c.elecDuty);
-    setText('elec-total', c.elecTotal);
-    setText('rent-cost', c.rentCost);
-    setText('model-amortized', c.modelAmortized);
-    setText('buffer-cost', c.bufferCost);
-    setText('unit-cost', c.unitCost);
-    setText('unit-profit', c.unitProfit);
-
-    const profitEl = document.getElementById('unit-profit');
-    profitEl.className = 'result-number ' + (c.unitProfit >= 0 ? 'profit' : 'loss');
-
-    // batch summary
-    setText('total-revenue', c.totalRevenue);
-    setText('total-filament-expense', c.totalFilamentExpense);
-    setText('total-electric', c.totalElectricity);
-    setText('total-model', c.totalModel);
-    setText('total-buffer', c.totalBuffer);
-    setText('net-profit', c.netProfit);
-    setText('unused-value', Math.max(0, c.unusedValue));
-
-    document.getElementById('net-profit').className = 'result-number ' + (c.netProfit >= 0 ? 'profit' : 'loss');
-
-    // pricing tiers
-    setText('tier-breakeven', c.unitCost);
-    setText('tier-budget', c.unitCost / 0.75);
-    setText('tier-standard', c.unitCost / 0.60);
-    setText('tier-commercial', c.unitCost / 0.50);
 
     // full breakdown · per unit vs batch
     const q = c.quantity;
@@ -282,22 +258,6 @@ function calculate() {
 
     document.getElementById('sum-profit-unit').className = 'summary-cell bold-cell ' + (c.unitProfit >= 0 ? 'profit' : 'loss');
     document.getElementById('sum-profit-batch').className = 'summary-cell bold-cell ' + (c.netProfit >= 0 ? 'profit' : 'loss');
-
-    // fun facts
-    const facts = [
-        `that's ${Math.max(1, Math.floor(c.netProfit / 40))} cans of soda in profit`,
-        `your printer just printed money... out of your bank account`,
-        `at least the spaghetti is plastic`,
-        `the real cost is the friends we lost along the way`,
-        `your wallet just filed a police report`,
-        `this is why we can't have nice things`,
-        `imagine explaining this hobby to your grandparents`,
-        `the printer goes brrr but your bank account goes crying`,
-        `another print, another hole in your pocket`,
-        `you could've bought a used car by now`,
-        `margin: ${c.unitProfitPct.toFixed(1)}% · keep the lights on, champ`
-    ];
-    document.getElementById('fun-fact').textContent = facts[Math.floor(Math.random() * facts.length)];
 
     document.getElementById('results').style.display = 'block';
 

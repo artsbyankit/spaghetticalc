@@ -678,7 +678,46 @@ body {
         margin-top: 80px;
     }
 
-    .calc-btn {
+.print-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 24px;
+    border: 1px solid var(--black);
+    margin-bottom: 24px;
+    background: var(--light, #fff);
+}
+
+.print-total-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    color: var(--gray);
+}
+
+.print-total-value {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+}
+
+.print-total-value .per {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--gray);
+}
+
+.print-total-value .batch-total {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--gray);
+}
+
+.calc-btn {
         padding: 16px;
         font-size: 13px;
     }

@@ -191,6 +191,8 @@ function refreshLive() {
     const c = computeCosts();
     renderSectionTotals(c);
     renderGstSplit(c);
+    document.getElementById('live-unit').innerHTML = formatINR(c.unitCost);
+    document.getElementById('live-batch').innerHTML = formatINR(c.totalExpenses);
 }
 
 function calculate() {

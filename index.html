@@ -4,11 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SpaghettiCalc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p>Welcome to my website.</p>
+    <nav class="nav">
+        <div class="nav-brand">spaghetticalc</div>
+        <div class="nav-tagline">3d printer cost calculator</div>
+    </nav>
+
+    <main class="main">
+        <section class="hero">
+            <h1 class="hero-title">how much does<br>your hobby <em>actually</em> cost?</h1>
+            <p class="hero-subtitle">the brutal truth about 3d printing expenses</p>
+        </section>
+
+        <section class="calculator">
+            <div class="calc-header">
+                <span class="calc-label">input</span>
+                <span class="calc-label">values</span>
+            </div>
+
+            <div class="calc-grid">
+                <div class="input-group">
+                    <label for="filament">filament cost ($/kg)</label>
+                    <input type="number" id="filament" value="25" step="0.01">
+                </div>
+
+                <div class="input-group">
+                    <label for="weight">print weight (grams)</label>
+                    <input type="number" id="weight" value="50" step="1">
+                </div>
+
+                <div class="input-group">
+                    <label for="time">print time (hours)</label>
+                    <input type="number" id="time" value="4" step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label for="electricity">electricity ($/kWh)</label>
+                    <input type="number" id="electricity" value="0.12" step="0.01">
+                </div>
+
+                <div class="input-group">
+                    <label for="power">printer power (watts)</label>
+                    <input type="number" id="power" value="300" step="1">
+                </div>
+
+                <div class="input-group">
+                    <label for="failure">failure rate (%)</label>
+                    <input type="number" id="failure" value="10" step="1">
+                </div>
+            </div>
+
+            <button class="calc-btn" onclick="calculate()">calculate</button>
+        </section>
+
+        <section class="results" id="results" style="display: none;">
+            <div class="results-header">
+                <span class="results-label">your damage</span>
+            </div>
+
+            <div class="results-grid">
+                <div class="result-item">
+                    <span class="result-number" id="material-cost">$0.00</span>
+                    <span class="result-label">material cost</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number" id="electric-cost">$0.00</span>
+                    <span class="result-label">electricity cost</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number" id="failure-cost">$0.00</span>
+                    <span class="result-label">failure tax</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-number total" id="total-cost">$0.00</span>
+                    <span class="result-label">total damage</span>
+                </div>
+            </div>
+
+            <div class="results-footer">
+                <p id="fun-fact"></p>
+            </div>
+        </section>
+
+        <section class="history">
+            <div class="history-header">
+                <span class="history-label">print history</span>
+                <button class="clear-btn" onclick="clearHistory()">clear</button>
+            </div>
+            <div id="history-list" class="history-list"></div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>made with questionable life choices</p>
+    </footer>
+
     <script src="script.js"></script>
 </body>
 </html>

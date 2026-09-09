@@ -4,12 +4,268 @@
     box-sizing: border-box;
 }
 
+:root {
+    --black: #000;
+    --white: #fff;
+    --gray: #666;
+    --light-gray: #f5f5f5;
+    --border: #e0e0e0;
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--white);
+    color: var(--black);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 48px;
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-brand {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.nav-tagline {
+    font-size: 14px;
+    color: var(--gray);
+}
+
+.main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 80px 24px;
+}
+
+.hero {
+    margin-bottom: 120px;
+}
+
+.hero-title {
+    font-size: 64px;
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+}
+
+.hero-title em {
+    font-style: italic;
+    font-weight: 400;
+}
+
+.hero-subtitle {
+    font-size: 18px;
+    color: var(--gray);
+    font-weight: 400;
+}
+
+.calc-header,
+.results-header,
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--black);
+    margin-bottom: 40px;
+}
+
+.calc-label,
+.results-label,
+.history-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+}
+
+.calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px 60px;
+    margin-bottom: 60px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gray);
+    margin-bottom: 12px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 16px 0;
+    font-size: 32px;
+    font-weight: 300;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    background: transparent;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+}
+
+.input-group input:focus {
+    border-color: var(--black);
+}
+
+.calc-btn {
+    width: 100%;
+    padding: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.calc-btn:hover {
+    opacity: 0.8;
+}
+
+.results {
+    margin-top: 120px;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 60px;
+}
+
+.result-item {
     display: flex;
     flex-direction: column;
+    gap: 8px;
+}
+
+.result-number {
+    font-size: 48px;
+    font-weight: 300;
+    letter-spacing: -0.03em;
+}
+
+.result-number.total {
+    font-size: 64px;
+    font-weight: 400;
+}
+
+.result-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gray);
+}
+
+.results-footer {
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+}
+
+.results-footer p {
+    font-size: 14px;
+    color: var(--gray);
+    font-style: italic;
+}
+
+.history {
+    margin-top: 120px;
+}
+
+.clear-btn {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: none;
+    border: none;
+    color: var(--gray);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.clear-btn:hover {
+    color: var(--black);
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background: #f0f0f0;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.history-item-name {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.history-item-cost {
+    font-size: 14px;
+    color: var(--gray);
+}
+
+.footer {
+    padding: 40px 48px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+}
+
+.footer p {
+    font-size: 12px;
+    color: var(--gray);
+}
+
+@media (max-width: 640px) {
+    .nav {
+        padding: 16px 24px;
+    }
+
+    .main {
+        padding: 40px 24px;
+    }
+
+    .hero-title {
+        font-size: 36px;
+    }
+
+    .calc-grid,
+    .results-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .input-group input {
+        font-size: 24px;
+    }
+
+    .result-number {
+        font-size: 32px;
+    }
+
+    .result-number.total {
+        font-size: 48px;
+    }
 }

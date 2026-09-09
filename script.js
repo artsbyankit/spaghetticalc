@@ -45,8 +45,8 @@ function setFilamentMode(mode) {
     document.getElementById('spools-label').textContent = isBulk ? 'spools in pack' : 'spools bought';
 
     if (isBulk) {
-        document.getElementById('base-filament').value = 1695;
-        document.getElementById('spools').value = 3;
+        document.getElementById('base-filament').value = 565;
+        document.getElementById('spools').value = 1;
     } else {
         document.getElementById('base-filament').value = 565;
         document.getElementById('spools').value = 1;

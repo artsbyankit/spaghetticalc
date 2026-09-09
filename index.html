@@ -31,11 +31,11 @@
 
             <div class="calc-grid">
                 <div class="toggle-wrap">
-                    <div class="toggle" id="filament-toggle">
-                        <button class="toggle-btn active" id="mode-bulk" onclick="setFilamentMode('bulk')">bulk pack</button>
+                    <div class="toggle" id="filament-toggle" role="tablist">
+                        <button class="toggle-btn" id="mode-bulk" onclick="setFilamentMode('bulk')">bulk pack</button>
                         <button class="toggle-btn" id="mode-perspool" onclick="setFilamentMode('perspool')">per spool</button>
                     </div>
-                    <span class="toggle-hint" id="toggle-hint">total paid for the whole pack</span>
+                    <div class="toggle-formula" id="toggle-formula"></div>
                 </div>
 
                 <div class="input-group">

@@ -10,7 +10,6 @@ function setFilamentMode(mode) {
     document.getElementById('mode-perspool').classList.toggle('active', !isBulk);
     document.getElementById('filament-amount-label').textContent = isBulk ? 'total paid for pack (₹)' : 'price per spool (₹)';
     document.getElementById('spools-label').textContent = isBulk ? 'spools in pack' : 'spools bought';
-    document.getElementById('toggle-hint').textContent = isBulk ? 'total paid for the whole pack' : 'price for one spool × how many you bought';
 
     if (isBulk) {
         document.getElementById('base-filament').value = 1695;
@@ -19,6 +18,25 @@ function setFilamentMode(mode) {
         document.getElementById('base-filament').value = 600;
         document.getElementById('spools').value = 3;
     }
+
+    renderToggleFormula();
+}
+
+function renderToggleFormula() {
+    const el = document.getElementById('toggle-formula');
+    if (filamentMode === 'bulk') {
+        el.innerHTML = '';
+        return;
+    }
+
+    const price = num('base-filament');
+    const spools = num('spools') || 1;
+    const total = price * spools;
+    const fmt = v => v.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    el.innerHTML = `
+        <span class="formula-num">₹${fmt(price)}</span>${price > 0 ? `<span class="formula-op">×</span><span class="formula-num">${spools} spools</span><span class="formula-op">=</span><span class="formula-result">₹${fmt(total)}</span>` : ''}
+    `;
 }
 
 function formatINR(amount) {
@@ -213,4 +231,6 @@ function clearHistory() {
 }
 
 setFilamentMode(filamentMode);
+document.getElementById('base-filament').addEventListener('input', renderToggleFormula);
+document.getElementById('spools').addEventListener('input', renderToggleFormula);
 renderHistory();

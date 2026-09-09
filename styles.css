@@ -60,6 +60,7 @@ body {
     width: 34px;
     height: 34px;
     background: transparent;
+    border: none;
     color: var(--black);
     cursor: pointer;
     transition: opacity 0.2s;

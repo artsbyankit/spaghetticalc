@@ -534,15 +534,11 @@ button:focus-visible {
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    background: var(--accent, #1fa55a);
+    background: var(--black);
     color: var(--white);
     border: none;
     cursor: pointer;
     transition: opacity 0.2s;
-}
-
-:root[data-theme="dark"] .calc-btn {
-    background: #4ade80;
 }
 
 .calc-btn:hover {

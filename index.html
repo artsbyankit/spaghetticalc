@@ -245,25 +245,40 @@
                     <span class="part-num">05</span>
                     <div class="part-head-text">
                         <h2 class="part-title">sell it</h2>
-                        <p class="part-sub">your price · profit margin</p>
+                        <p class="part-sub">live pricing · profit margin</p>
                     </div>
                 </div>
 
                 <div class="calc-grid">
-                    <div class="input-group">
-                        <label>selling price per unit (₹)</label>
-                        <input type="number" id="sale" value="0" step="1">
+                    <div class="toggle-wrap">
+                        <div class="toggle" id="margin-toggle" role="tablist">
+                            <button class="toggle-btn" id="margin-25" onclick="setMargin(25)">25%</button>
+                            <button class="toggle-btn" id="margin-50" onclick="setMargin(50)">50%</button>
+                            <button class="toggle-btn" id="margin-70" onclick="setMargin(70)">70%</button>
+                            <button class="toggle-btn" id="margin-40" onclick="setMargin(40)" title="best ratio">best</button>
+                        </div>
+                        <div class="toggle-formula" id="margin-formula"></div>
                     </div>
 
                     <div class="input-group">
-                        <label>profit margin (%)</label>
-                        <input type="number" id="margin" value="30" step="1">
+                        <label>already sold it at (₹)</label>
+                        <input type="number" id="sale" value="0" step="1">
                     </div>
                 </div>
 
-                <div class="part-total">
-                    <span class="part-total-label">charge your client</span>
-                    <span class="part-total-value" id="margin-suggest">₹0.00 <span class="per">/ unit</span></span>
+                <div class="sell-results">
+                    <div class="sell-line">
+                        <span class="sell-label">worst case · your cost</span>
+                        <span class="sell-value" id="sell-cost">₹0.00</span>
+                    </div>
+                    <div class="sell-line">
+                        <span class="sell-label">your price @ <b id="margin-lbl">40</b>% margin</span>
+                        <span class="sell-value" id="margin-suggest">₹0.00 <span class="per">/ unit</span></span>
+                    </div>
+                    <div class="sell-line" id="sell-profit-line" style="display: none;">
+                        <span class="sell-label">sold at <b id="sold-price">₹0</b></span>
+                        <span class="sell-value" id="sell-profit">₹0.00</span>
+                    </div>
                 </div>
             </div>
 

@@ -1,5 +1,6 @@
 let printHistory = JSON.parse(localStorage.getItem('printHistory') || '[]');
 let filamentMode = localStorage.getItem('filamentMode') || 'perspool';
+let marginPct = parseInt(localStorage.getItem('marginPct') || '40', 10);
 
 function initTheme() {
     const theme = localStorage.getItem('theme') || 'light';
@@ -160,9 +161,11 @@ function computeCosts() {
     const unitProfitPct = sale > 0 ? (unitProfit / sale) * 100 : 0;
 
     // 5. SELL IT
-    const margin = num('margin');
+    const margin = marginPct;
     const marginPrice = margin >= 100 ? unitCost : unitCost / ((100 - margin) / 100);
     const marginProfit = marginPrice - unitCost;
+    const soldProfit = sale - unitCost;
+    const soldPct = sale > 0 ? (soldProfit / sale) * 100 : 0;
 
     // batch summary
     const totalFilamentUsed = gramsUsed * quantity;
@@ -182,7 +185,7 @@ function computeCosts() {
         sgst, cgst, gstTotal: gst,
         elecBase, elecFppas, elecDuty, elecTotal, rentCost,
         modelAmortized, bufferCost, unitCost, unitProfit, unitProfitPct,
-        margin, marginPrice, marginProfit,
+        margin, marginPrice, marginProfit, soldProfit, soldPct,
         quantity, sale, gramsUsed, hours,
         totalFilamentUsed, totalRevenue, totalFilamentExpense, totalElectricity,
         totalRent, totalModel, totalBuffer, totalExpenses, netProfit,
@@ -205,8 +208,36 @@ function renderGstSplit(c) {
     document.getElementById('gst-total').textContent = formatINR(c.gstTotal);
 }
 
+function setMargin(pct) {
+    marginPct = pct;
+    localStorage.setItem('marginPct', String(pct));
+    ['25', '50', '70', '40'].forEach(id => {
+        document.getElementById('margin-' + id).classList.toggle('active', parseInt(id, 10) === pct);
+    });
+    refreshLive();
+}
+
 function renderMarginSuggestion(c) {
-    document.getElementById('margin-suggest').innerHTML = `${formatINR(c.marginPrice)} <span class="per">/ unit</span> <span class="batch-total">· profit ${formatINR(c.marginProfit)}</span>`;
+    const fmt = formatINR;
+    document.getElementById('sell-cost').textContent = fmt(c.unitCost);
+    document.getElementById('margin-lbl').textContent = c.margin;
+    document.getElementById('margin-suggest').innerHTML = `${fmt(c.marginPrice)} <span class="per">/ unit</span>`;
+
+    const div = (100 - c.margin) / 100;
+    document.getElementById('margin-formula').innerHTML =
+        `<span class="formula-num">${fmt(c.unitCost)}</span><span class="formula-op">÷ ${(div).toFixed(2)}</span><span class="formula-op">=</span><span class="formula-result">${fmt(c.marginPrice)}</span>`;
+
+    const line = document.getElementById('sell-profit-line');
+    if (c.sale > 0) {
+        line.style.display = 'flex';
+        const pct = c.soldPct >= 0 ? `+${c.soldPct.toFixed(1)}%` : `${c.soldPct.toFixed(1)}%`;
+        document.getElementById('sold-price').textContent = fmt(c.sale);
+        const el = document.getElementById('sell-profit');
+        el.textContent = `${fmt(Math.abs(c.soldProfit))} (${pct})`;
+        el.className = 'sell-value ' + (c.soldProfit >= 0 ? 'profit' : 'loss');
+    } else {
+        line.style.display = 'none';
+    }
 }
 
 function refreshLive() {
@@ -291,6 +322,7 @@ function clearHistory() {
 }
 
 setFilamentMode(filamentMode);
+setMargin(marginPct);
 initTheme();
 document.getElementById('base-filament').addEventListener('input', renderToggleFormula);
 document.getElementById('spools').addEventListener('input', renderToggleFormula);

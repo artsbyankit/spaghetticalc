@@ -272,6 +272,56 @@ body {
     margin-left: auto;
 }
 
+.sell-results {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.sell-line {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.sell-line b {
+    font-weight: 600;
+    color: var(--black);
+}
+
+.sell-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+    color: var(--gray);
+}
+
+.sell-value {
+    font-size: 20px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+}
+
+.sell-value .per {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--gray);
+}
+
+.sell-value.profit {
+    color: var(--black);
+}
+
+.sell-value.loss {
+    color: var(--gray);
+}
+
 .toggle-wrap {
     grid-column: 1 / -1;
     display: flex;

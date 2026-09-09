@@ -397,7 +397,12 @@
         <section class="history">
             <div class="history-header">
                 <span class="history-label">print history</span>
-                <button class="clear-btn" onclick="clearHistory()">clear</button>
+                <div class="history-actions">
+                    <button class="clear-btn" onclick="exportHistory()">export</button>
+                    <button class="clear-btn" onclick="document.getElementById('history-file').click()">import</button>
+                    <input type="file" id="history-file" accept=".json,application/json" style="display:none" onchange="importHistory(event)">
+                    <button class="clear-btn" onclick="clearHistory()">clear</button>
+                </div>
             </div>
             <div id="history-list" class="history-list"></div>
         </section>

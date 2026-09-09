@@ -719,6 +719,12 @@ button:focus-visible {
     transition: color 0.2s;
 }
 
+.history-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
 .clear-btn:hover {
     color: var(--black);
 }

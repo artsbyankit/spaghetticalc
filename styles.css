@@ -168,7 +168,44 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 40px 60px;
-    margin-bottom: 60px;
+}
+
+.part-total {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.part-total-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+    color: var(--gray);
+}
+
+.part-total-value {
+    font-size: 16px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+}
+
+.part-total-value .per {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--gray);
+}
+
+.part-total-value .batch-total {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--gray);
 }
 
 .toggle-wrap {

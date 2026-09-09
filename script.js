@@ -53,6 +53,7 @@ function setFilamentMode(mode) {
     }
 
     renderToggleFormula();
+    refreshLive();
 }
 
 function renderToggleFormula() {
@@ -89,7 +90,7 @@ function setText(id, value) {
     document.getElementById(id).textContent = formatINR(value);
 }
 
-function calculate() {
+function computeCosts() {
     // 1. FILAMENT
     const baseFilament = num('base-filament');
     const shipping = num('shipping');
@@ -103,7 +104,7 @@ function calculate() {
     const totalWeight = spools * spoolWeight;
     const costPerGram = totalInvoice / totalWeight;
 
-    const filamentMaterial = costPerGram * gramsUsed;
+    const filamentMaterial = (baseSubtotal / totalWeight) * gramsUsed;
     const shippingAlloc = (shipping / totalWeight) * gramsUsed;
     const gstAlloc = (gst / totalWeight) * gramsUsed;
     const filamentTotal = filamentMaterial + shippingAlloc + gstAlloc;
@@ -141,23 +142,6 @@ function calculate() {
     const unitProfit = sale - unitCost;
     const unitProfitPct = sale > 0 ? (unitProfit / sale) * 100 : 0;
 
-    // per-unit display
-    setText('filament-material', filamentMaterial);
-    setText('shipping-alloc', shippingAlloc);
-    setText('gst-alloc', gstAlloc);
-    setText('filament-total', filamentTotal);
-    setText('elec-base', elecBase);
-    setText('elec-fppas', elecFppas);
-    setText('elec-duty', elecDuty);
-    setText('elec-total', elecTotal);
-    setText('model-amortized', modelAmortized);
-    setText('buffer-cost', bufferCost);
-    setText('unit-cost', unitCost);
-    setText('unit-profit', unitProfit);
-
-    const profitEl = document.getElementById('unit-profit');
-    profitEl.className = 'result-number ' + (unitProfit >= 0 ? 'profit' : 'loss');
-
     // batch summary
     const totalFilamentUsed = gramsUsed * quantity;
     const totalRevenue = sale * quantity;
@@ -171,62 +155,109 @@ function calculate() {
     const unusedGrams = totalWeight - totalFilamentUsed;
     const unusedValue = unusedGrams > 0 ? unusedGrams * costPerGram : 0;
 
-    setText('total-revenue', totalRevenue);
-    setText('total-filament-expense', totalFilamentExpense);
-    setText('total-electric', totalElectricity);
-    setText('total-model', totalModel);
-    setText('total-buffer', totalBuffer);
-    setText('net-profit', netProfit);
-    setText('unused-value', Math.max(0, unusedValue));
+    return {
+        filamentMaterial, shippingAlloc, gstAlloc, filamentTotal,
+        elecBase, elecFppas, elecDuty, elecTotal, rentCost,
+        modelAmortized, bufferCost, unitCost, unitProfit, unitProfitPct,
+        quantity, sale, gramsUsed, hours,
+        totalFilamentUsed, totalRevenue, totalFilamentExpense, totalElectricity,
+        totalRent, totalModel, totalBuffer, totalExpenses, netProfit,
+        unusedGrams, unusedValue
+    };
+}
 
-    document.getElementById('net-profit').className = 'result-number ' + (netProfit >= 0 ? 'profit' : 'loss');
+function renderSectionTotals(c) {
+    const q = c.quantity;
+    const unit = formatINR;
+    document.getElementById('total-materials').innerHTML = `${unit(c.filamentTotal)} <span class="per">/ unit</span> <span class="batch-total">· ${unit(c.filamentTotal * q)} batch</span>`;
+    document.getElementById('total-electricity').innerHTML = `${unit(c.elecTotal)} <span class="per">/ unit</span> <span class="batch-total">· ${unit(c.elecTotal * q)} batch</span>`;
+    document.getElementById('total-time').innerHTML = `${unit(c.rentCost)} <span class="per">/ unit</span> <span class="batch-total">· ${unit(c.rentCost * q)} batch</span>`;
+    document.getElementById('total-batch').innerHTML = `${unit(c.modelAmortized + c.bufferCost)} <span class="per">/ unit</span> <span class="batch-total">· ${unit(c.totalModel + c.totalBuffer)} batch</span>`;
+}
+
+function refreshLive() {
+    renderSectionTotals(computeCosts());
+}
+
+function calculate() {
+    const c = computeCosts();
+
+    // per-unit display
+    setText('filament-material', c.filamentMaterial);
+    setText('shipping-alloc', c.shippingAlloc);
+    setText('gst-alloc', c.gstAlloc);
+    setText('filament-total', c.filamentTotal);
+    setText('elec-base', c.elecBase);
+    setText('elec-fppas', c.elecFppas);
+    setText('elec-duty', c.elecDuty);
+    setText('elec-total', c.elecTotal);
+    setText('rent-cost', c.rentCost);
+    setText('model-amortized', c.modelAmortized);
+    setText('buffer-cost', c.bufferCost);
+    setText('unit-cost', c.unitCost);
+    setText('unit-profit', c.unitProfit);
+
+    const profitEl = document.getElementById('unit-profit');
+    profitEl.className = 'result-number ' + (c.unitProfit >= 0 ? 'profit' : 'loss');
+
+    // batch summary
+    setText('total-revenue', c.totalRevenue);
+    setText('total-filament-expense', c.totalFilamentExpense);
+    setText('total-electric', c.totalElectricity);
+    setText('total-model', c.totalModel);
+    setText('total-buffer', c.totalBuffer);
+    setText('net-profit', c.netProfit);
+    setText('unused-value', Math.max(0, c.unusedValue));
+
+    document.getElementById('net-profit').className = 'result-number ' + (c.netProfit >= 0 ? 'profit' : 'loss');
 
     // pricing tiers
-    setText('tier-breakeven', unitCost);
-    setText('tier-budget', unitCost / 0.75);
-    setText('tier-standard', unitCost / 0.60);
-    setText('tier-commercial', unitCost / 0.50);
+    setText('tier-breakeven', c.unitCost);
+    setText('tier-budget', c.unitCost / 0.75);
+    setText('tier-standard', c.unitCost / 0.60);
+    setText('tier-commercial', c.unitCost / 0.50);
 
     // full breakdown · per unit vs batch
-    setText('sum-film-mat-unit', filamentMaterial);
-    setText('sum-film-mat-batch', filamentMaterial * quantity);
-    setText('sum-ship-unit', shippingAlloc);
-    setText('sum-ship-batch', shippingAlloc * quantity);
-    setText('sum-gst-unit', gstAlloc);
-    setText('sum-gst-batch', gstAlloc * quantity);
-    setText('sum-film-unit', filamentTotal);
-    setText('sum-film-batch', filamentTotal * quantity);
+    const q = c.quantity;
+    setText('sum-film-mat-unit', c.filamentMaterial);
+    setText('sum-film-mat-batch', c.filamentMaterial * q);
+    setText('sum-ship-unit', c.shippingAlloc);
+    setText('sum-ship-batch', c.shippingAlloc * q);
+    setText('sum-gst-unit', c.gstAlloc);
+    setText('sum-gst-batch', c.gstAlloc * q);
+    setText('sum-film-unit', c.filamentTotal);
+    setText('sum-film-batch', c.filamentTotal * q);
 
-    setText('sum-elec-base-unit', elecBase);
-    setText('sum-elec-base-batch', elecBase * quantity);
-    setText('sum-elec-fppas-unit', elecFppas);
-    setText('sum-elec-fppas-batch', elecFppas * quantity);
-    setText('sum-elec-duty-unit', elecDuty);
-    setText('sum-elec-duty-batch', elecDuty * quantity);
-    setText('sum-elec-unit', elecTotal);
-    setText('sum-elec-batch', elecTotal * quantity);
+    setText('sum-elec-base-unit', c.elecBase);
+    setText('sum-elec-base-batch', c.elecBase * q);
+    setText('sum-elec-fppas-unit', c.elecFppas);
+    setText('sum-elec-fppas-batch', c.elecFppas * q);
+    setText('sum-elec-duty-unit', c.elecDuty);
+    setText('sum-elec-duty-batch', c.elecDuty * q);
+    setText('sum-elec-unit', c.elecTotal);
+    setText('sum-elec-batch', c.elecTotal * q);
 
-    setText('sum-rent-unit', rentCost);
-    setText('sum-rent-batch', totalRent);
+    setText('sum-rent-unit', c.rentCost);
+    setText('sum-rent-batch', c.totalRent);
 
-    setText('sum-model-unit', modelAmortized);
-    setText('sum-model-batch', modelCost);
-    setText('sum-buffer-unit', bufferCost);
-    setText('sum-buffer-batch', totalBuffer);
+    setText('sum-model-unit', c.modelAmortized);
+    setText('sum-model-batch', c.totalModel);
+    setText('sum-buffer-unit', c.bufferCost);
+    setText('sum-buffer-batch', c.totalBuffer);
 
-    setText('sum-cost-unit', unitCost);
-    setText('sum-cost-batch', totalExpenses);
-    setText('sum-rev-unit', sale);
-    setText('sum-rev-batch', totalRevenue);
-    setText('sum-profit-unit', unitProfit);
-    setText('sum-profit-batch', netProfit);
+    setText('sum-cost-unit', c.unitCost);
+    setText('sum-cost-batch', c.totalExpenses);
+    setText('sum-rev-unit', c.sale);
+    setText('sum-rev-batch', c.totalRevenue);
+    setText('sum-profit-unit', c.unitProfit);
+    setText('sum-profit-batch', c.netProfit);
 
-    document.getElementById('sum-profit-unit').className = 'summary-cell bold-cell ' + (unitProfit >= 0 ? 'profit' : 'loss');
-    document.getElementById('sum-profit-batch').className = 'summary-cell bold-cell ' + (netProfit >= 0 ? 'profit' : 'loss');
+    document.getElementById('sum-profit-unit').className = 'summary-cell bold-cell ' + (c.unitProfit >= 0 ? 'profit' : 'loss');
+    document.getElementById('sum-profit-batch').className = 'summary-cell bold-cell ' + (c.netProfit >= 0 ? 'profit' : 'loss');
 
     // fun facts
     const facts = [
-        `that's ${Math.max(1, Math.floor(netProfit / 40))} cans of soda in profit`,
+        `that's ${Math.max(1, Math.floor(c.netProfit / 40))} cans of soda in profit`,
         `your printer just printed money... out of your bank account`,
         `at least the spaghetti is plastic`,
         `the real cost is the friends we lost along the way`,
@@ -236,17 +267,17 @@ function calculate() {
         `the printer goes brrr but your bank account goes crying`,
         `another print, another hole in your pocket`,
         `you could've bought a used car by now`,
-        `margin: ${unitProfitPct.toFixed(1)}% · keep the lights on, champ`
+        `margin: ${c.unitProfitPct.toFixed(1)}% · keep the lights on, champ`
     ];
     document.getElementById('fun-fact').textContent = facts[Math.floor(Math.random() * facts.length)];
 
     document.getElementById('results').style.display = 'block';
 
     const historyItem = {
-        weight: gramsUsed + 'g',
-        time: hours + 'h',
-        units: quantity + ' u',
-        cost: formatINR(unitCost),
+        weight: c.gramsUsed + 'g',
+        time: c.hours + 'h',
+        units: c.quantity + ' u',
+        cost: formatINR(c.unitCost),
         date: new Date().toLocaleDateString()
     };
     printHistory.unshift(historyItem);
@@ -275,4 +306,8 @@ setFilamentMode(filamentMode);
 document.getElementById('base-filament').addEventListener('input', renderToggleFormula);
 document.getElementById('spools').addEventListener('input', renderToggleFormula);
 initLocks();
+document.querySelectorAll('input[type="number"]').forEach(input => {
+    input.addEventListener('input', refreshLive);
+});
+renderSectionTotals(computeCosts());
 renderHistory();

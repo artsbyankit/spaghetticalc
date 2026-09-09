@@ -1,5 +1,26 @@
 let printHistory = JSON.parse(localStorage.getItem('printHistory') || '[]');
 let filamentMode = localStorage.getItem('filamentMode') || 'perspool';
+let printMode = localStorage.getItem('printMode') || 'business';
+
+function initTheme() {
+    const theme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+}
+
+function setPrintMode(mode) {
+    printMode = mode;
+    localStorage.setItem('printMode', mode);
+    document.getElementById('mode-me').classList.toggle('active', mode === 'personal');
+    document.getElementById('mode-others').classList.toggle('active', mode === 'business');
+    refreshLive();
+}
 
 function initLocks() {
     document.querySelectorAll('[data-lock]').forEach(group => {
@@ -131,7 +152,7 @@ function computeCosts() {
     const elecTotal = powerKW * hours * effectiveRate;
 
     // 3. TIME
-    const daily = num('daily');
+    const daily = printMode === 'personal' ? 0 : num('daily');
     const rentCost = (hours / 24) * daily;
 
     // 4. JOB & BATCH
@@ -319,6 +340,8 @@ function clearHistory() {
 }
 
 setFilamentMode(filamentMode);
+setPrintMode(printMode);
+initTheme();
 document.getElementById('base-filament').addEventListener('input', renderToggleFormula);
 document.getElementById('spools').addEventListener('input', renderToggleFormula);
 initLocks();

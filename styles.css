@@ -12,6 +12,14 @@
     --border: #e0e0e0;
 }
 
+:root[data-theme="dark"] {
+    --black: #ededed;
+    --white: #0f0f0f;
+    --gray: #9a9a9a;
+    --light-gray: #1a1a1a;
+    --border: #2a2a2a;
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--white);
@@ -43,6 +51,46 @@ body {
 .nav-tagline {
     font-size: 14px;
     color: var(--gray);
+}
+
+.print-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border);
+}
+
+.toggle-btn-sm {
+    font-size: 11px;
+    padding: 7px 12px;
+    letter-spacing: 0.08em;
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--black);
+    cursor: pointer;
+    transition: border-color 0.2s, opacity 0.2s;
+}
+
+.theme-toggle:hover {
+    opacity: 0.6;
+}
+
+.theme-toggle .icon-sun {
+    display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle .icon-sun {
+    display: inline-block;
+}
+
+:root[data-theme="dark"] .theme-toggle .icon-moon {
+    display: none;
 }
 
 .currency-select {

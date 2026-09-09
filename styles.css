@@ -178,7 +178,7 @@ body {
 
 .part-sub {
     font-size: 13px;
-    color: var(--gray);
+    color: var(--accent);
     font-weight: 400;
     letter-spacing: 0.02em;
 }
@@ -192,7 +192,7 @@ body {
 .part-total {
     margin-top: 40px;
     padding-top: 16px;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--accent);
     display: flex;
     align-items: baseline;
     justify-content: space-between;
@@ -204,8 +204,8 @@ body {
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    font-weight: 500;
-    color: var(--gray);
+    font-weight: 600;
+    color: var(--accent);
 }
 
 .part-total-value {
@@ -228,21 +228,26 @@ body {
 }
 
 .print-total {
+    --accent: #1fa55a;
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
     padding-top: 16px;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--accent);
+}
+
+:root[data-theme="dark"] .print-total {
+    --accent: #4ade80;
 }
 
 .print-total-label {
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    font-weight: 500;
-    color: var(--gray);
+    font-weight: 600;
+    color: var(--accent);
 }
 
 .print-total-value {
@@ -350,11 +355,11 @@ body {
 .toggle {
     display: inline-flex;
     flex-wrap: wrap;
-    border: 1px solid var(--black);
+    border: 1px solid var(--accent);
 }
 
 button:focus-visible {
-    outline: 2px solid var(--black);
+    outline: 2px solid var(--accent, var(--black));
     outline-offset: 2px;
 }
 
@@ -381,7 +386,7 @@ button:focus-visible {
 }
 
 .toggle-btn + .toggle-btn {
-    border-left: 1px solid var(--black);
+    border-left: 1px solid var(--accent);
 }
 
 .toggle-btn:hover {
@@ -389,7 +394,7 @@ button:focus-visible {
 }
 
 .toggle-btn.active {
-    background: var(--black);
+    background: var(--accent);
     color: var(--white);
 }
 
@@ -402,7 +407,7 @@ button:focus-visible {
     padding: 9px 12px;
     width: 110px;
     border: 1px solid var(--border);
-    border-bottom: 1px solid var(--black);
+    border-bottom: 1px solid var(--accent);
     background: transparent;
     color: var(--black);
     outline: none;
@@ -440,7 +445,7 @@ button:focus-visible {
 }
 
 .toggle-formula .formula-result {
-    color: var(--black);
+    color: var(--accent);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
 }
@@ -519,7 +524,7 @@ button:focus-visible {
 }
 
 .input-group input:focus {
-    border-color: var(--black);
+    border-color: var(--accent);
 }
 
 .calc-btn {
@@ -529,11 +534,15 @@ button:focus-visible {
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    background: var(--black);
+    background: var(--accent, #1fa55a);
     color: var(--white);
     border: none;
     cursor: pointer;
     transition: opacity 0.2s;
+}
+
+:root[data-theme="dark"] .calc-btn {
+    background: #4ade80;
 }
 
 .calc-btn:hover {

@@ -208,9 +208,14 @@ function renderGstSplit(c) {
     document.getElementById('gst-total').textContent = formatINR(c.gstTotal);
 }
 
+function clearMarginActive() {
+    document.querySelectorAll('#margin-toggle .toggle-btn').forEach(btn => btn.classList.remove('active'));
+}
+
 function setMargin(pct) {
     marginPct = pct;
     localStorage.setItem('marginPct', String(pct));
+    document.getElementById('margin-custom').value = '';
     ['10', '20', '30', '40', '50'].forEach(id => {
         document.getElementById('margin-' + id).classList.toggle('active', parseInt(id, 10) === pct);
     });
@@ -326,6 +331,14 @@ setMargin(marginPct);
 initTheme();
 document.getElementById('base-filament').addEventListener('input', renderToggleFormula);
 document.getElementById('spools').addEventListener('input', renderToggleFormula);
+document.getElementById('margin-custom').addEventListener('input', function () {
+    const v = parseFloat(this.value);
+    if (!v || v <= 0) return;
+    marginPct = Math.min(v, 100);
+    localStorage.setItem('marginPct', String(marginPct));
+    clearMarginActive();
+    refreshLive();
+});
 initLocks();
 document.querySelectorAll('input[type="number"]').forEach(input => {
     input.addEventListener('input', refreshLive);

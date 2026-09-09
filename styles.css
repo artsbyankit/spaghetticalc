@@ -365,6 +365,33 @@ body {
     color: var(--white);
 }
 
+.margin-custom {
+    font-family: inherit;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+    padding: 9px 12px;
+    width: 110px;
+    border: 1px solid var(--border);
+    border-bottom: 1px solid var(--black);
+    background: transparent;
+    color: var(--black);
+    outline: none;
+    -moz-appearance: textfield;
+}
+
+.margin-custom::-webkit-inner-spin-button,
+.margin-custom::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.margin-custom::placeholder {
+    color: var(--gray);
+    opacity: 0.8;
+}
+
 .toggle-formula {
     font-size: 13px;
     color: var(--gray);

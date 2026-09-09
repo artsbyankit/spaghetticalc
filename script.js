@@ -201,7 +201,7 @@ function computeCosts() {
         elecBase, elecFppas, elecDuty, elecTotal, rentCost,
         modelAmortized, bufferCost, unitCost, unitProfit,
         margin, marginPrice, soldProfit, soldPct,
-        effectiveUnitSale, quantity, sale, gramsUsed, hours,
+        effectiveUnitSale, quantity, sale,
         totalModel, totalBuffer, totalExpenses, netProfit
     };
 }

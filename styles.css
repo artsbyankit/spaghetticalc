@@ -682,26 +682,29 @@ body {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: 16px 32px;
+    gap: 16px;
     flex-wrap: wrap;
-    padding: 28px 0 24px;
-    border-top: 1px solid var(--black);
-    margin-bottom: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.part:last-of-type {
+    margin-bottom: 40px;
 }
 
 .print-total-label {
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-weight: 600;
+    letter-spacing: 0.1em;
+    font-weight: 500;
     color: var(--gray);
 }
 
 .print-total-value {
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    font-size: 22px;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
     text-align: right;
 }
 

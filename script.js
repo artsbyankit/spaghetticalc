@@ -211,7 +211,7 @@ function renderGstSplit(c) {
 function setMargin(pct) {
     marginPct = pct;
     localStorage.setItem('marginPct', String(pct));
-    ['25', '50', '70', '40'].forEach(id => {
+    ['10', '20', '30', '40', '50'].forEach(id => {
         document.getElementById('margin-' + id).classList.toggle('active', parseInt(id, 10) === pct);
     });
     refreshLive();

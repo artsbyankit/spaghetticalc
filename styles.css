@@ -59,11 +59,10 @@ body {
     justify-content: center;
     width: 34px;
     height: 34px;
-    border: 1px solid var(--border);
     background: transparent;
     color: var(--black);
     cursor: pointer;
-    transition: border-color 0.2s, opacity 0.2s;
+    transition: opacity 0.2s;
 }
 
 .theme-toggle:hover {

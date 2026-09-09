@@ -45,34 +45,40 @@
 
                     <div class="input-group">
                         <label id="filament-amount-label">total paid for pack (₹)</label>
-                        <input type="number" id="base-filament" value="1695" step="1">
+                        <input type="number" id="base-filament" value="565" step="1">
                     </div>
 
                     <div class="input-group">
                         <label id="spools-label">spools in pack</label>
-                        <input type="number" id="spools" value="3" step="1">
+                        <input type="number" id="spools" value="1" step="1">
                     </div>
 
                     <div class="input-group locked" data-lock>
                         <label>
-                            <span>shipping fee (₹)</span>
+                            <span>shipping per spool (₹)</span>
                             <button type="button" class="lock-toggle" title="double-click to unlock">
                                 <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
                                 <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
                             </button>
                         </label>
-                        <input type="number" id="shipping" value="150" step="1" disabled>
+                        <input type="number" id="shipping-per-spool" value="50" step="1" disabled>
                     </div>
 
                     <div class="input-group locked" data-lock>
                         <label>
-                            <span>GST on filament (₹)</span>
+                            <span>GST rate (%)</span>
                             <button type="button" class="lock-toggle" title="double-click to unlock">
                                 <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
                                 <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
                             </button>
                         </label>
-                        <input type="number" id="gst" value="332.10" step="0.01" disabled>
+                        <input type="number" id="gst-rate" value="18" step="1" disabled>
+                    </div>
+
+                    <div class="gst-split">
+                        <span>SGST 9% · <b id="sgst-amount">₹0.00</b></span>
+                        <span>CGST 9% · <b id="cgst-amount">₹0.00</b></span>
+                        <span class="gst-split-total">GST total · <b id="gst-total">₹0.00</b></span>
                     </div>
 
                     <div class="input-group">

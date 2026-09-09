@@ -1,5 +1,5 @@
 let printHistory = JSON.parse(localStorage.getItem('printHistory') || '[]');
-let filamentMode = localStorage.getItem('filamentMode') || 'bulk';
+let filamentMode = localStorage.getItem('filamentMode') || 'perspool';
 
 function initLocks() {
     document.querySelectorAll('[data-lock]').forEach(group => {
@@ -48,8 +48,8 @@ function setFilamentMode(mode) {
         document.getElementById('base-filament').value = 1695;
         document.getElementById('spools').value = 3;
     } else {
-        document.getElementById('base-filament').value = 600;
-        document.getElementById('spools').value = 3;
+        document.getElementById('base-filament').value = 565;
+        document.getElementById('spools').value = 1;
     }
 
     renderToggleFormula();
@@ -93,13 +93,17 @@ function setText(id, value) {
 function computeCosts() {
     // 1. FILAMENT
     const baseFilament = num('base-filament');
-    const shipping = num('shipping');
-    const gst = num('gst');
+    const shippingPerSpool = num('shipping-per-spool');
     const spools = num('spools');
     const spoolWeight = num('spool-weight');
     const gramsUsed = num('grams-used');
 
     const baseSubtotal = filamentMode === 'bulk' ? baseFilament : baseFilament * spools;
+    const shipping = shippingPerSpool * spools;
+    const gstRate = num('gst-rate');
+    const gst = (baseSubtotal + shipping) * (gstRate / 100);
+    const sgst = gst / 2;
+    const cgst = gst / 2;
     const totalInvoice = baseSubtotal + shipping + gst;
     const totalWeight = spools * spoolWeight;
     const costPerGram = totalInvoice / totalWeight;
@@ -157,6 +161,7 @@ function computeCosts() {
 
     return {
         filamentMaterial, shippingAlloc, gstAlloc, filamentTotal,
+        sgst, cgst, gstTotal: gst,
         elecBase, elecFppas, elecDuty, elecTotal, rentCost,
         modelAmortized, bufferCost, unitCost, unitProfit, unitProfitPct,
         quantity, sale, gramsUsed, hours,
@@ -175,8 +180,16 @@ function renderSectionTotals(c) {
     document.getElementById('total-batch').innerHTML = `${unit(c.modelAmortized + c.bufferCost)} <span class="per">/ unit</span> <span class="batch-total">· ${unit(c.totalModel + c.totalBuffer)} batch</span>`;
 }
 
+function renderGstSplit(c) {
+    document.getElementById('sgst-amount').textContent = formatINR(c.sgst);
+    document.getElementById('cgst-amount').textContent = formatINR(c.cgst);
+    document.getElementById('gst-total').textContent = formatINR(c.gstTotal);
+}
+
 function refreshLive() {
-    renderSectionTotals(computeCosts());
+    const c = computeCosts();
+    renderSectionTotals(c);
+    renderGstSplit(c);
 }
 
 function calculate() {

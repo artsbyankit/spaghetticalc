@@ -157,8 +157,6 @@ function computeCosts() {
     const bufferCost = (bufferPct / 100) * filamentTotal;
 
     const unitCost = filamentTotal + elecTotal + rentCost + modelAmortized + bufferCost;
-    const unitProfit = sale - unitCost;
-    const unitProfitPct = sale > 0 ? (unitProfit / sale) * 100 : 0;
 
     // 5. SELL IT
     const margin = marginPct;
@@ -167,9 +165,13 @@ function computeCosts() {
     const soldProfit = sale - unitCost;
     const soldPct = sale > 0 ? (soldProfit / sale) * 100 : 0;
 
+    const effectiveUnitSale = sale > 0 ? sale : marginPrice;
+    const unitProfit = effectiveUnitSale - unitCost;
+    const unitProfitPct = effectiveUnitSale > 0 ? (unitProfit / effectiveUnitSale) * 100 : 0;
+
     // batch summary
     const totalFilamentUsed = gramsUsed * quantity;
-    const totalRevenue = sale * quantity;
+    const totalRevenue = effectiveUnitSale * quantity;
     const totalFilamentExpense = totalFilamentUsed * costPerGram;
     const totalElectricity = elecTotal * quantity;
     const totalRent = rentCost * quantity;
@@ -186,7 +188,7 @@ function computeCosts() {
         elecBase, elecFppas, elecDuty, elecTotal, rentCost,
         modelAmortized, bufferCost, unitCost, unitProfit, unitProfitPct,
         margin, marginPrice, marginProfit, soldProfit, soldPct,
-        quantity, sale, gramsUsed, hours,
+        effectiveUnitSale, quantity, sale, gramsUsed, hours,
         totalFilamentUsed, totalRevenue, totalFilamentExpense, totalElectricity,
         totalRent, totalModel, totalBuffer, totalExpenses, netProfit,
         unusedGrams, unusedValue
@@ -288,7 +290,7 @@ function calculate() {
 
     setText('sum-cost-unit', c.unitCost);
     setText('sum-cost-batch', c.totalExpenses);
-    setText('sum-rev-unit', c.sale);
+    setText('sum-rev-unit', c.effectiveUnitSale);
     setText('sum-rev-batch', c.totalRevenue);
     setText('sum-profit-unit', c.unitProfit);
     setText('sum-profit-batch', c.netProfit);

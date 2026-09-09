@@ -24,6 +24,7 @@
 
 html {
     background: var(--white);
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -32,6 +33,7 @@ body {
     color: var(--black);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .nav {
@@ -161,6 +163,10 @@ body {
     margin-bottom: 120px;
 }
 
+.part:last-of-type {
+    margin-bottom: 40px;
+}
+
 .part-head {
     display: flex;
     align-items: baseline;
@@ -251,6 +257,44 @@ body {
     color: var(--gray);
 }
 
+.print-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.print-total-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+    color: var(--gray);
+}
+
+.print-total-value {
+    font-size: 24px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+    text-align: right;
+}
+
+.print-total-value .per {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--gray);
+}
+
+.print-total-value .batch-total {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--gray);
+}
+
 .gst-split {
     grid-column: 1 / -1;
     display: flex;
@@ -335,7 +379,22 @@ body {
 
 .toggle {
     display: inline-flex;
+    flex-wrap: wrap;
     border: 1px solid var(--black);
+}
+
+button:focus-visible {
+    outline: 2px solid var(--black);
+    outline-offset: 2px;
+}
+
+.calc-btn:active,
+.clear-btn:active {
+    opacity: 0.6;
+}
+
+.toggle-btn:active {
+    opacity: 0.5;
 }
 
 .toggle-btn {
@@ -756,11 +815,19 @@ body {
     }
 
     .hero-title {
-        font-size: 32px;
+        font-size: 34px;
     }
 
     .hero-subtitle {
         font-size: 15px;
+    }
+
+    .part-head {
+        gap: 14px;
+    }
+
+    .part-num {
+        font-size: 12px;
     }
 
     .calc-grid,
@@ -806,49 +873,18 @@ body {
         margin-top: 80px;
     }
 
-.print-total {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-}
+    .print-total {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+    }
 
-.part:last-of-type {
-    margin-bottom: 40px;
-}
+    .print-total-value {
+        font-size: 20px;
+        text-align: left;
+    }
 
-.print-total-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 500;
-    color: var(--gray);
-}
-
-.print-total-value {
-    font-size: 24px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.01em;
-    text-align: right;
-}
-
-.print-total-value .per {
-    font-size: 13px;
-    font-weight: 400;
-    color: var(--gray);
-}
-
-.print-total-value .batch-total {
-    font-size: 14px;
-    font-weight: 400;
-    color: var(--gray);
-}
-
-.calc-btn {
+    .calc-btn {
         padding: 16px;
         font-size: 13px;
     }

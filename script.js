@@ -5,6 +5,12 @@ let marginPct = parseInt(localStorage.getItem('marginPct') || '0', 10);
 function initTheme() {
     const theme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', theme);
+    applyThemeColor(theme);
+}
+
+function applyThemeColor(theme) {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = theme === 'dark' ? '#0f0f0f' : '#ffffff';
 }
 
 function toggleTheme() {
@@ -12,6 +18,7 @@ function toggleTheme() {
     const next = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
+    applyThemeColor(next);
 }
 
 function initLocks() {

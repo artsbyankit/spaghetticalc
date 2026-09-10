@@ -1,5 +1,5 @@
-let filamentMode = localStorage.getItem('filamentMode') || 'perspool';
-let marginPct = parseInt(localStorage.getItem('marginPct') || '0', 10);
+let filamentMode = localStorage.getItem('filamentMode') || 'bulk';
+let marginPct = parseInt(localStorage.getItem('marginPct') || '35', 10);
 
 function systemTheme() {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -168,20 +168,38 @@ function computeCosts() {
     const quantity = num('quantity');
     const modelCost = num('model-cost');
     const bufferPct = num('buffer');
+    const failedPct = num('failed-buffer');
     const sale = num('sale');
 
     const modelAmortized = modelCost / quantity;
     const bufferCost = (bufferPct / 100) * filamentTotal;
 
-    const unitCost = filamentTotal + elecTotal + rentCost + modelAmortized + bufferCost;
+    // 5. POST-PROCESSING (post labor covered by machine + labour day rate)
+    const postMinutes = num('post-support') + num('post-sanding') + num('post-painting');
+    const postCost = (postMinutes / 60 / 24) * daily;
 
-    // 5. SELL IT
+    const subTotal = filamentTotal + elecTotal + rentCost + modelAmortized + bufferCost + postCost;
+    const failBuffer = subTotal * (failedPct / 100);
+    const unitCost = subTotal + failBuffer;
+
+    // 6. SELL IT
     const margin = marginPct;
     const marginPrice = margin >= 100 ? unitCost : unitCost / ((100 - margin) / 100);
+
+    // 7. MARKET TIER
+    const tierSelect = document.getElementById('tier-select');
+    const tierAdj = (parseInt(tierSelect ? tierSelect.value : '0', 10) || 0) / 100;
+    const tierPrice = marginPrice * (1 + tierAdj);
+
+    // competitor benchmark
+    const online = num('online-price');
+    const overOnline = online > 0 ? tierPrice - online : 0;
+    const compPct = online > 0 ? ((tierPrice - online) / online) * 100 : null;
+
     const soldProfit = sale - unitCost;
     const soldPct = sale > 0 ? (soldProfit / sale) * 100 : 0;
 
-    const effectiveUnitSale = sale > 0 ? sale : marginPrice;
+    const effectiveUnitSale = sale > 0 ? sale : tierPrice;
     const unitProfit = effectiveUnitSale - unitCost;
 
     // batch summary
@@ -192,17 +210,22 @@ function computeCosts() {
     const totalRent = rentCost * quantity;
     const totalModel = modelCost;
     const totalBuffer = totalFilamentExpense * (bufferPct / 100);
-    const totalExpenses = totalFilamentExpense + totalElectricity + totalRent + totalModel + totalBuffer;
+    const batchPost = postCost * quantity;
+    const batchSubtotal = totalFilamentExpense + totalElectricity + totalRent + totalModel + totalBuffer + batchPost;
+    const batchFail = batchSubtotal * (failedPct / 100);
+    const totalExpenses = batchSubtotal + batchFail;
     const netProfit = totalRevenue - totalExpenses;
 
     return {
         filamentMaterial, shippingAlloc, gstAlloc, filamentTotal,
         sgst, cgst, gstTotal: gst,
         elecBase, elecFppas, elecDuty, elecTotal, rentCost,
-        modelAmortized, bufferCost, unitCost, unitProfit,
+        modelAmortized, bufferCost, postCost, failedPct, failBuffer,
+        tierAdj, tierPrice, online, overOnline, compPct,
+        unitCost, unitProfit,
         margin, marginPrice, soldProfit, soldPct,
         effectiveUnitSale, quantity, sale,
-        totalModel, totalBuffer, totalExpenses, netProfit
+        totalModel, totalBuffer, batchPost, batchFail, totalExpenses, netProfit
     };
 }
 
@@ -225,8 +248,8 @@ function renderSectionTotals(c) {
     const unit = formatINR;
     document.getElementById('total-materials').innerHTML = `${unit(c.filamentTotal)} <span class="per">/ unit</span> <span class="batch-total">· ${unit(c.filamentTotal * q)} batch</span>`;
     document.getElementById('total-electricity').innerHTML = `${unit(c.elecTotal)} <span class="per">/ unit</span> <span class="batch-total">· ${unit(c.elecTotal * q)} batch</span>`;
-    document.getElementById('total-time').innerHTML = `${unit(c.rentCost)} <span class="per">/ unit</span> <span class="batch-total">· ${unit(c.rentCost * q)} batch</span>`;
-    document.getElementById('total-batch').innerHTML = `${unit(c.modelAmortized + c.bufferCost)} <span class="per">/ unit</span> <span class="batch-total">· ${unit(c.totalModel + c.totalBuffer)} batch</span>`;
+    document.getElementById('total-time').innerHTML = `${unit(c.rentCost + c.postCost)} <span class="per">/ unit</span> <span class="batch-total">· ${unit((c.rentCost + c.postCost) * q)} batch</span>`;
+    document.getElementById('total-batch').innerHTML = `${unit(c.modelAmortized + c.bufferCost + c.failBuffer)} <span class="per">/ unit</span> <span class="batch-total">· ${unit(c.totalModel + c.totalBuffer + c.batchFail)} batch</span>`;
 }
 
 function renderGstSplit(c) {
@@ -238,7 +261,7 @@ function renderGstSplit(c) {
 function setMargin(pct) {
     marginPct = pct;
     localStorage.setItem('marginPct', String(pct));
-    ['10', '20', '30', '40', '50'].forEach(id => {
+    ['20', '35', '50', '75'].forEach(id => {
         document.getElementById('margin-' + id).classList.toggle('active', parseInt(id, 10) === pct);
     });
     refreshLive();
@@ -246,7 +269,7 @@ function setMargin(pct) {
 
 function initMargin() {
     setMargin(marginPct);
-    const presets = [10, 20, 30, 40, 50];
+    const presets = [20, 35, 50, 75];
     document.getElementById('margin-custom').value = presets.includes(marginPct) ? '' : String(marginPct);
 }
 
@@ -273,12 +296,46 @@ function renderMarginSuggestion(c) {
     }
 }
 
+function renderMarket(c) {
+    const select = document.getElementById('tier-select');
+    const label = select && select.selectedIndex >= 0
+        ? select.options[select.selectedIndex].text.split('—')[0].trim()
+        : 'none';
+    const pct = Math.round(c.tierAdj * 100);
+    document.getElementById('tier-name-badge').textContent = (pct >= 0 ? `(+${pct}%)` : `(${pct}%)`);
+    document.getElementById('tier-price').innerHTML = `${formatINR(c.tierPrice)} <span class="per">/ unit</span>`;
+
+    const deltaPct = c.tierAdj !== 0 ? (c.tierPrice - c.marginPrice) / c.marginPrice * 100 : 0;
+    document.getElementById('tier-recap').innerHTML =
+        `<span class="formula-num">${formatINR(c.marginPrice)}</span>` +
+        (c.tierAdj !== 0 ? `<span class="formula-op"> ${pct >= 0 ? '+' : ''}${pct}%</span><span class="formula-op">=</span><span class="formula-result">${formatINR(c.tierPrice)}</span> <span class="fg-hint">${label} · ${deltaPct >= 0 ? '+' : ''}${deltaPct.toFixed(1)}% vs base</span>` : '');
+
+    const bar = document.getElementById('comp-status');
+    const over = document.getElementById('over-online');
+    if (c.online > 0 && c.compPct != null) {
+        const sign = c.compPct >= 0 ? '+' : '';
+        over.textContent = `${formatINR(c.tierPrice)} · ${sign}${c.compPct.toFixed(1)}% vs online`;
+        if (c.compPct > 0) {
+            bar.textContent = `your price is ${sign}${c.compPct.toFixed(1)}% above online — consider adding value (speed, quality, customization)`;
+            bar.className = 'comp-status warn';
+        } else {
+            bar.textContent = 'good competitive position — at or under online price';
+            bar.className = 'comp-status good';
+        }
+    } else {
+        over.textContent = '—';
+        bar.textContent = 'enter an online price to compare';
+        bar.className = 'comp-status muted';
+    }
+}
+
 function refreshLive() {
     const c = computeCosts();
     renderSpoolWeightHint();
     renderSectionTotals(c);
     renderGstSplit(c);
     renderMarginSuggestion(c);
+    renderMarket(c);
     document.getElementById('live-unit').innerHTML = formatINR(c.unitCost);
     document.getElementById('live-batch').innerHTML = formatINR(c.totalExpenses);
 }
@@ -311,6 +368,10 @@ function calculate() {
 
     setText('sum-model-unit', c.modelAmortized);
     setText('sum-model-batch', c.totalModel);
+    setText('sum-post-unit', c.postCost);
+    setText('sum-post-batch', c.batchPost);
+    setText('sum-fail-unit', c.failBuffer);
+    setText('sum-fail-batch', c.batchFail);
     setText('sum-buffer-unit', c.bufferCost);
     setText('sum-buffer-batch', c.totalBuffer);
 
@@ -344,6 +405,7 @@ initLocks();
 document.querySelectorAll('input[type="number"]').forEach(input => {
     input.addEventListener('input', refreshLive);
 });
+document.getElementById('tier-select').addEventListener('change', refreshLive);
 
 (function () {
     const seq = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];

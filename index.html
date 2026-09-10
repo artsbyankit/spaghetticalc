@@ -142,6 +142,12 @@
                         <label>3d model cost (one-time ₹)</label>
                         <input type="number" id="model-cost" value="0" step="1">
                     </div>
+
+                    <div class="input-group">
+                        <label>failed print buffer (%)</label>
+                        <input type="number" id="failed-buffer" value="8" step="1" min="0" max="100">
+                        <div class="fg-hint">covers ~1 failed print per 12 successful</div>
+                    </div>
                 </div>
 
                 <div class="part-total">
@@ -154,8 +160,8 @@
                 <div class="part-head">
                     <span class="part-num">03</span>
                     <div class="part-head-text">
-                        <h2 class="part-title">time</h2>
-                        <p class="part-sub">print hours · machine + labour · buffer</p>
+                        <h2 class="part-title">time & post-processing</h2>
+                        <p class="part-sub">print · finishing · machine + labour</p>
                     </div>
                 </div>
 
@@ -163,6 +169,21 @@
                     <div class="input-group">
                         <label>print time per unit (hrs)</label>
                         <input type="number" id="time" value="1" step="0.1">
+                    </div>
+
+                    <div class="input-group">
+                        <label>support removal (min)</label>
+                        <input type="number" id="post-support" value="0" step="1">
+                    </div>
+
+                    <div class="input-group">
+                        <label>sanding / finishing (min)</label>
+                        <input type="number" id="post-sanding" value="0" step="1">
+                    </div>
+
+                    <div class="input-group">
+                        <label>painting (if any) (min)</label>
+                        <input type="number" id="post-painting" value="0" step="1">
                     </div>
 
                     <div class="input-group locked" data-lock>
@@ -189,7 +210,7 @@
                 </div>
 
                 <div class="part-total">
-                    <span class="part-total-label">time</span>
+                    <span class="part-total-label">time & post-processing</span>
                     <span class="part-total-value" id="total-time">₹0.00 <span class="per">/ unit</span></span>
                 </div>
             </div>
@@ -267,11 +288,10 @@
                 <div class="calc-grid">
                     <div class="toggle-wrap">
                         <div class="toggle" id="margin-toggle">
-                            <button class="toggle-btn" id="margin-10" onclick="setMargin(10)">10%</button>
-                            <button class="toggle-btn" id="margin-20" onclick="setMargin(20)">20%</button>
-                            <button class="toggle-btn" id="margin-30" onclick="setMargin(30)">30%</button>
-                            <button class="toggle-btn" id="margin-40" onclick="setMargin(40)">40%</button>
-                            <button class="toggle-btn" id="margin-50" onclick="setMargin(50)">50%</button>
+                            <button class="toggle-btn" id="margin-20" onclick="setMargin(20)" title="minimum viable">20%</button>
+                            <button class="toggle-btn" id="margin-35" onclick="setMargin(35)" title="standard">35%</button>
+                            <button class="toggle-btn" id="margin-50" onclick="setMargin(50)" title="comfortable">50%</button>
+                            <button class="toggle-btn" id="margin-75" onclick="setMargin(75)" title="premium">75%</button>
                         </div>
                         <input type="number" class="margin-custom" id="margin-custom" placeholder="custom %" step="1" min="1" max="100">
                         <div class="toggle-formula" id="margin-formula"></div>
@@ -281,6 +301,12 @@
                         <label>already sold it at (₹)</label>
                         <input type="number" id="sale" value="0" step="1">
                     </div>
+
+                    <div class="input-group">
+                        <label>online competitor price (₹)</label>
+                        <input type="number" id="online-price" value="0" step="1">
+                        <div class="comp-status" id="comp-status"></div>
+                    </div>
                 </div>
 
                 <div class="sell-results">
@@ -289,14 +315,47 @@
                         <span class="sell-value" id="sell-cost">₹0.00</span>
                     </div>
                     <div class="sell-line">
-                        <span class="sell-label">your price @ <b id="margin-lbl">40</b>% margin</span>
+                        <span class="sell-label">base price @ <b id="margin-lbl">40</b>% margin</span>
                         <span class="sell-value" id="margin-suggest">₹0.00 <span class="per">/ unit</span></span>
+                    </div>
+                    <div class="sell-line" id="tier-line">
+                        <span class="sell-label">tier price <b id="tier-name-badge">(none)</b></span>
+                        <span class="sell-value" id="tier-price">₹0.00 <span class="per">/ unit</span></span>
+                    </div>
+                    <div class="sell-line">
+                        <span class="sell-label">online comparison</span>
+                        <span class="sell-value" id="over-online">—</span>
                     </div>
                     <div class="sell-line" id="sell-profit-line" style="display: none;">
                         <span class="sell-label">sold at <b id="sold-price">₹0</b></span>
                         <span class="sell-value" id="sell-profit">₹0.00</span>
                     </div>
                 </div>
+            </div>
+
+            <div class="part part-market">
+                <div class="part-head">
+                    <span class="part-num">06</span>
+                    <div class="part-head-text">
+                        <h2 class="part-title">market tier</h2>
+                        <p class="part-sub">customer type · price adjustment</p>
+                    </div>
+                </div>
+
+                <div class="calc-grid">
+                    <div class="input-group wide">
+                        <label>customer type</label>
+                        <select id="tier-select">
+                            <option value="0" selected>local shopkeeper — base price (0%)</option>
+                            <option value="-15">student / hobbyist — −15%</option>
+                            <option value="40">rush order (24hr) — +40%</option>
+                            <option value="60">complex design — +60%</option>
+                            <option value="-10">repeat customer — −10%</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="tier-recap" id="tier-recap"></div>
             </div>
 
             <div class="print-total">
@@ -371,6 +430,16 @@
                     <span class="summary-cell label-cell">3d model (amortized)</span>
                     <span class="summary-cell" id="sum-model-unit">₹0.00</span>
                     <span class="summary-cell" id="sum-model-batch">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-cell label-cell">post-processing</span>
+                    <span class="summary-cell" id="sum-post-unit">₹0.00</span>
+                    <span class="summary-cell" id="sum-post-batch">₹0.00</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span class="summary-cell label-cell">failed print buffer</span>
+                    <span class="summary-cell bold-cell" id="sum-fail-unit">₹0.00</span>
+                    <span class="summary-cell bold-cell" id="sum-fail-batch">₹0.00</span>
                 </div>
                 <div class="summary-row total-row">
                     <span class="summary-cell label-cell">maintenance buffer</span>

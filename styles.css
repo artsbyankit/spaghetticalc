@@ -114,6 +114,18 @@ body {
     line-height: 1.1;
     letter-spacing: -0.03em;
     margin-bottom: 24px;
+    background: linear-gradient(90deg, hsl(0, 100%, 60%), hsl(60, 100%, 60%), hsl(120, 100%, 60%), hsl(180, 100%, 60%), hsl(240, 100%, 60%), hsl(300, 100%, 60%), hsl(360, 100%, 60%));
+    background-size: 400% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: rainbow 12s linear infinite;
+}
+
+@keyframes rainbow {
+    0% { background-position: 0% 0; }
+    100% { background-position: 400% 0; }
 }
 
 .hero-title em {
@@ -540,6 +552,14 @@ button:focus-visible {
 
 .input-group input:focus {
     border-color: var(--accent);
+}
+
+.weight-hint {
+    display: none;
+    margin-top: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent, #38bdf8);
 }
 
 .calc-btn {

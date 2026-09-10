@@ -206,6 +206,20 @@ function computeCosts() {
     };
 }
 
+function renderSpoolWeightHint() {
+    const g = num('spool-weight');
+    const hint = document.getElementById('spool-weight-hint');
+    if (g >= 1000) {
+        const kg = g / 1000;
+        const text = Number.isInteger(kg) ? kg.toString() : kg.toFixed(1);
+        hint.textContent = `= ${text} kg`;
+        hint.style.display = 'inline-block';
+    } else {
+        hint.textContent = '';
+        hint.style.display = 'none';
+    }
+}
+
 function renderSectionTotals(c) {
     const q = c.quantity;
     const unit = formatINR;
@@ -261,6 +275,7 @@ function renderMarginSuggestion(c) {
 
 function refreshLive() {
     const c = computeCosts();
+    renderSpoolWeightHint();
     renderSectionTotals(c);
     renderGstSplit(c);
     renderMarginSuggestion(c);

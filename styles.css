@@ -752,6 +752,17 @@ button:focus-visible {
     color: var(--gray);
 }
 
+.footer-email {
+    color: var(--gray);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-email:hover {
+    color: var(--black);
+    text-decoration: underline;
+}
+
 @media (max-width: 768px) {
     .part {
         margin-bottom: 80px;

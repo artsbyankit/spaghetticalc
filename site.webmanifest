@@ -1,0 +1,17 @@
+{
+  "name": "SpaghettiCalc — 3D Print Cost & Profit Calculator",
+  "short_name": "SpaghettiCalc",
+  "description": "What your 3D print really costs — cost, pricing and profit calculator.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#e85d2f",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

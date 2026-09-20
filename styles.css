@@ -364,7 +364,6 @@ body {
 }
 
 .print-total {
-    --accent: #1fa55a;
     display: flex;
     align-items: baseline;
     justify-content: space-between;
@@ -373,10 +372,6 @@ body {
     margin-top: 40px;
     padding-top: 16px;
     border-top: 1px solid var(--accent);
-}
-
-:root[data-theme="dark"] .print-total {
-    --accent: #4ade80;
 }
 
 .print-total-label {

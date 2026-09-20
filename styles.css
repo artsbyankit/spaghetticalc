@@ -935,9 +935,18 @@ button:focus-visible {
 .site-footer span {
     font-size: 12px;
     font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.05em;
     color: var(--gray);
+}
+
+.site-footer a {
+    color: var(--black);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.site-footer a:hover {
+    opacity: 0.7;
 }
 
 .results {

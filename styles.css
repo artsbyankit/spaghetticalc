@@ -462,6 +462,72 @@ body {
     white-space: nowrap;
 }
 
+.client-price {
+    margin-top: 24px;
+    padding: 16px;
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    background: var(--light-gray);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.client-price-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.client-price-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.client-price-sub {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--gray);
+}
+
+.client-price-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.client-price-cell input {
+    width: 110px;
+    flex: 0 0 auto;
+}
+
+.client-price-batch {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.client-price-batch-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: var(--gray);
+}
+
+.client-price .ful-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+}
+
 .gst-rate-group {
     grid-column: 1 / -1;
 }

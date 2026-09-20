@@ -292,17 +292,17 @@ function renderM5(m) {
 }
 
 function computeM6(m5, m3) {
-    const priceUnit = num('m6-price');
+    const priceBatch = num('m6-price');
     const marginPct = num('m6-margin');
     const units = m5.units;
 
     const costUnit = m5.totalUnit;
     const costBatch = m5.totalBatch;
+    const priceUnit = units > 0 ? priceBatch / units : 0;
     const targetProfitUnit = costUnit * (marginPct / 100);
     const targetProfitBatch = costBatch * (marginPct / 100);
     const suggestUnit = costUnit + targetProfitUnit;
     const suggestBatch = costBatch + targetProfitBatch;
-    const priceBatch = priceUnit * units;
     const yourProfitUnit = priceUnit - costUnit;
     const yourProfitBatch = priceBatch - costBatch;
     const marginOnPrice = priceUnit > 0 ? (yourProfitUnit / priceUnit) * 100 : 0;
@@ -311,11 +311,10 @@ function computeM6(m5, m3) {
     const perH = jobH > 0 ? targetProfitBatch / jobH : 0;
 
     return {
-        priceUnit, marginPct, units,
+        priceUnit, priceBatch, marginPct, units,
         costUnit, costBatch,
         targetProfitUnit, targetProfitBatch,
         suggestUnit, suggestBatch,
-        priceBatch,
         yourProfitUnit, yourProfitBatch,
         marginOnPrice,
         jobH, perH
@@ -327,12 +326,11 @@ function renderM6(m) {
     document.getElementById('m6-cost-batch').textContent = `${formatINR(m.costBatch)} batch`;
     document.getElementById('m6-suggest-unit').textContent = `${formatINR(m.suggestUnit)}/unit`;
     document.getElementById('m6-suggest-batch').textContent = `${formatINR(m.suggestBatch)} batch`;
-    document.getElementById('m6-price-unit').textContent = `${formatINR(m.priceUnit)}/unit`;
-    document.getElementById('m6-price-batch').textContent = `${formatINR(m.priceBatch)} batch`;
     document.getElementById('m6-profit-unit').textContent = `${formatINR(m.targetProfitUnit)}/unit`;
     document.getElementById('m6-profit-batch').textContent = `${formatINR(m.targetProfitBatch)} batch`;
     document.getElementById('m6-job-h').textContent = `${fmtH(m.jobH)}`;
     document.getElementById('m6-perhour').textContent = `${formatINR(m.perH)}/h`;
+    document.getElementById('m6-price-batch').textContent = `${formatINR(m.priceBatch)} batch`;
     document.getElementById('m6-profit-per').textContent = `${formatINR(m.targetProfitUnit)}/unit`;
     document.getElementById('m6-profit-total').textContent = `${formatINR(m.targetProfitBatch)} batch`;
 }

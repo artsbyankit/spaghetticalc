@@ -62,6 +62,7 @@ function initLocks(onChange) {
 
         input.addEventListener('input', () => {
             localStorage.setItem('val-' + input.id, input.value);
+            if (input.id === 'm6-price') return;
             if (onChange) onChange();
         });
     });
@@ -93,7 +94,6 @@ function computeM1() {
 function renderM1(m) {
     const kgText = Number.isInteger(m.totalKg) ? m.totalKg.toString() : m.totalKg.toFixed(3);
     document.getElementById('m1-total-filament').innerHTML = `${kgText} <span class="per">kg</span>`;
-    document.getElementById('m1-cost-kg').textContent = `${formatINR(m.costPerKg)}/kg`;
     document.getElementById('m1-cost-g').textContent = `${formatINR(m.costPerG)}/g`;
 
     const hint = document.getElementById('m1-per-unit-hint');
@@ -197,7 +197,7 @@ function stopwatchH() {
 
 function renderM3(m) {
     document.getElementById('m3-total').textContent = formatINR(m.total);
-    document.getElementById('m3-prod-time').textContent = `${fmtH(m.prodH)}`;
+    document.getElementById('m3-prod-time').textContent = fmtDur(m.prodH);
     document.getElementById('m3-labor-time').textContent = `${m.laborMin} min`;
     document.getElementById('m3-rate-cost').textContent = `${formatINR(m.rateCost)}/unit`;
 
@@ -208,6 +208,13 @@ function renderM3(m) {
 function fmtH(h) {
     const rounded = Math.round(h * 100) / 100;
     return `${Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(2)} h`;
+}
+
+function fmtDur(h) {
+    const totMin = Math.round(h * 60);
+    const hh = Math.floor(totMin / 60);
+    const mm = totMin % 60;
+    return `${hh}h ${String(mm).padStart(2, '0')}m`;
 }
 
 function computeM4(prodH, units) {
@@ -301,8 +308,9 @@ function computeM6(m5, m3) {
     const priceUnit = units > 0 ? priceBatch / units : 0;
     const targetProfitUnit = costUnit * (marginPct / 100);
     const targetProfitBatch = costBatch * (marginPct / 100);
-    const suggestUnit = costUnit + targetProfitUnit;
-    const suggestBatch = costBatch + targetProfitBatch;
+    const coefficient = 1 + marginPct / 100;
+    const suggestUnit = costUnit * coefficient;
+    const suggestBatch = costBatch * coefficient;
     const yourProfitUnit = priceUnit - costUnit;
     const yourProfitBatch = priceBatch - costBatch;
     const marginOnPrice = priceUnit > 0 ? (yourProfitUnit / priceUnit) * 100 : 0;
@@ -328,7 +336,7 @@ function renderM6(m) {
     document.getElementById('m6-suggest-batch').textContent = `${formatINR(m.suggestBatch)} batch`;
     document.getElementById('m6-profit-unit').textContent = `${formatINR(m.targetProfitUnit)}/unit`;
     document.getElementById('m6-profit-batch').textContent = `${formatINR(m.targetProfitBatch)} batch`;
-    document.getElementById('m6-job-h').textContent = `${fmtH(m.jobH)}`;
+    document.getElementById('m6-job-h').textContent = fmtDur(m.jobH);
     document.getElementById('m6-perhour').textContent = `${formatINR(m.perH)}/h`;
     document.getElementById('m6-price-batch').textContent = `${formatINR(m.priceBatch)} batch`;
     document.getElementById('m6-profit-per').textContent = `${formatINR(m.targetProfitUnit)}/unit`;
@@ -397,7 +405,29 @@ function applyInputRules(id, onChange) {
  'm2-units', 'm2-model', 'm2-grams', 'm2-failed',
  'm3-support', 'm3-sand', 'm3-iron', 'm3-rate',
  'm4-power', 'm4-duty', 'm4-rate'].forEach(id => applyInputRules(id, renderAllAndSync));
-applyInputRules('m6-price', renderAll);
+
+const priceInput = document.getElementById('m6-price');
+priceInput.setAttribute('min', '0');
+priceInput.addEventListener('input', function () {
+    let v = parseFloat(this.value);
+    if (this.value !== '' && (v < 0 || isNaN(v))) this.value = v < 0 ? '0' : '';
+    if (this.disabled) return;
+    const costBatch = parseFloat(document.getElementById('m6-cost-batch').textContent.replace(/[^0-9.-]/g, '')) || 0;
+    const priceBatch = parseFloat(this.value) || 0;
+    const margin = costBatch > 0 ? (priceBatch / costBatch - 1) * 100 : 0;
+    document.getElementById('m6-margin').value = String(Math.min(500, Math.max(0, Math.round(margin * 10) / 10)));
+    renderAll();
+});
+priceInput.addEventListener('focus', function () {
+    this._prev = this.value;
+    this.value = '';
+});
+priceInput.addEventListener('blur', function () {
+    if (this.value === '' || this.value == null) {
+        this.value = this._prev != null ? this._prev : '0';
+        renderAll();
+    }
+});
 
 const marginInput = document.getElementById('m6-margin');
 marginInput.addEventListener('input', function () {
@@ -447,7 +477,7 @@ document.addEventListener('dblclick', function (e) {
     localStorage.setItem('lock-' + input.id, nextLocked ? '1' : '0');
     applyLock(group, input, nextLocked);
     renderAllAndSync();
-});
+}, true);
 
 initLocks(renderAllAndSync);
 renderAll();

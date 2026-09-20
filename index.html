@@ -97,11 +97,7 @@
 
                 <div class="filament-usage">
                     <div class="filament-usage-line">
-                        <span class="ful-label">material cost</span>
-                        <span class="ful-value" id="m1-cost-kg">₹0.00/kg</span>
-                    </div>
-                    <div class="filament-usage-line">
-                        <span class="ful-label">material cost</span>
+                        <span class="ful-label">price per gram</span>
                         <span class="ful-value" id="m1-cost-g">₹0.00/g</span>
                     </div>
                 </div>
@@ -168,7 +164,7 @@
                     <span class="ful-value" id="m2-filament-batch">₹0.00 batch</span>
                 </div>
                 <div class="filament-usage-line">
-                    <span class="ful-label">model cost</span>
+                    <span class="ful-label">3d model cost</span>
                     <span class="ful-value" id="m2-model-unit">₹0.00/unit</span>
                     <span class="ful-sub" id="m2-model-batch">₹0.00 batch</span>
                 </div>
@@ -233,14 +229,14 @@
             </div>
 
             <div class="part-total">
-                <span class="part-total-label">overheads / unit</span>
+                <span class="part-total-label">machine + labor / unit</span>
                 <span class="part-total-value" id="m3-total">₹0.00</span>
             </div>
 
             <div class="filament-usage">
                 <div class="filament-usage-line">
-                    <span class="ful-label">production time / unit</span>
-                    <span class="ful-value" id="m3-prod-time">0 h</span>
+<span class="ful-label">production time / unit</span>
+                        <span class="ful-value" id="m3-prod-time">0h 00m</span>
                 </div>
                 <div class="filament-usage-line">
                     <span class="ful-label">labor time / unit</span>
@@ -328,48 +324,52 @@
                 </div>
             </div>
 
-            <div class="filament-usage">
-                <div class="filament-usage-line">
-                    <span class="ful-label">material cost</span>
-                    <span class="ful-sub" id="m5-material-unit">₹0.00/unit</span>
-                    <span class="ful-value" id="m5-material-batch">₹0.00 batch</span>
-                </div>
-                <div class="filament-usage-line">
-                    <span class="ful-label">3d model cost</span>
-                    <span class="ful-sub" id="m5-model-unit">₹0.00/unit</span>
-                    <span class="ful-value" id="m5-model-batch">₹0.00 batch</span>
-                </div>
-                <div class="filament-usage-line">
-                    <span class="ful-label">machine cost</span>
-                    <span class="ful-sub" id="m5-machine-unit">₹0.00/unit</span>
-                    <span class="ful-value" id="m5-machine-batch">₹0.00 batch</span>
-                </div>
-                <div class="filament-usage-line">
-                    <span class="ful-label">labor & post-processing</span>
-                    <span class="ful-sub" id="m5-labor-unit">₹0.00/unit</span>
-                    <span class="ful-value" id="m5-labor-batch">₹0.00 batch</span>
-                </div>
-                <div class="filament-usage-line">
-                    <span class="ful-label">electricity (incl. duty)</span>
-                    <span class="ful-sub" id="m5-elec-unit">₹0.00/unit</span>
-                    <span class="ful-value" id="m5-elec-batch">₹0.00 batch</span>
-                </div>
-                <div class="filament-usage-line">
-                    <span class="ful-label">maintenance <span id="m5-maintain-lbl">(10%)</span></span>
-                    <span class="ful-sub" id="m5-maintain-unit">₹0.00/unit</span>
-                    <span class="ful-value" id="m5-maintain-batch">₹0.00 batch</span>
-                </div>
-                <div class="filament-usage-line">
-                    <span class="ful-label">failed print buffer</span>
-                    <span class="ful-sub" id="m5-fail-unit">₹0.00/unit</span>
-                    <span class="ful-value" id="m5-fail-batch">₹0.00 batch</span>
-                </div>
-            </div>
-
-            <div class="print-total">
-                <span class="print-total-label">total production cost</span>
-                <span class="per" id="m5-total-unit"></span>
-                <span class="grand-batch" id="m5-total-batch"></span>
+            <div class="filament-usage m5-results">
+                    <div class="filament-usage-line m5-col-head">
+                        <span class="ful-label">look in ₹ / batch for the real money</span>
+                        <span class="ful-sub">₹ / unit</span>
+                        <span class="ful-value">₹ / batch</span>
+                    </div>
+                    <div class="filament-usage-line">
+                        <span class="ful-label">material cost</span>
+                        <span class="ful-sub" id="m5-material-unit">₹0.00/unit</span>
+                        <span class="ful-value" id="m5-material-batch">₹0.00 batch</span>
+                    </div>
+                    <div class="filament-usage-line">
+                        <span class="ful-label">3d model cost</span>
+                        <span class="ful-sub" id="m5-model-unit">₹0.00/unit</span>
+                        <span class="ful-value" id="m5-model-batch">₹0.00 batch</span>
+                    </div>
+                    <div class="filament-usage-line">
+                        <span class="ful-label">machine cost</span>
+                        <span class="ful-sub" id="m5-machine-unit">₹0.00/unit</span>
+                        <span class="ful-value" id="m5-machine-batch">₹0.00 batch</span>
+                    </div>
+                    <div class="filament-usage-line">
+                        <span class="ful-label">labor &amp; post-processing</span>
+                        <span class="ful-sub" id="m5-labor-unit">₹0.00/unit</span>
+                        <span class="ful-value" id="m5-labor-batch">₹0.00 batch</span>
+                    </div>
+                    <div class="filament-usage-line">
+                        <span class="ful-label">electricity (incl. duty)</span>
+                        <span class="ful-sub" id="m5-elec-unit">₹0.00/unit</span>
+                        <span class="ful-value" id="m5-elec-batch">₹0.00 batch</span>
+                    </div>
+                    <div class="filament-usage-line">
+                        <span class="ful-label">maintenance <span id="m5-maintain-lbl">(10%)</span></span>
+                        <span class="ful-sub" id="m5-maintain-unit">₹0.00/unit</span>
+                        <span class="ful-value" id="m5-maintain-batch">₹0.00 batch</span>
+                    </div>
+                    <div class="filament-usage-line">
+                        <span class="ful-label">failed print buffer</span>
+                        <span class="ful-sub" id="m5-fail-unit">₹0.00/unit</span>
+                        <span class="ful-value" id="m5-fail-batch">₹0.00 batch</span>
+                    </div>
+                    <div class="filament-usage-line m5-grand">
+                        <span class="ful-label">total production cost</span>
+                        <span class="ful-sub" id="m5-total-unit"></span>
+                        <span class="ful-value" id="m5-total-batch"></span>
+                    </div>
             </div>
         </section>
 
@@ -420,7 +420,7 @@
 
             <div class="filament-usage">
                 <div class="filament-usage-line">
-                    <span class="ful-label">job time <span class="ful-label-hint" id="m6-job-h">0 h</span></span>
+                    <span class="ful-label">job time <span class="ful-label-hint" id="m6-job-h">0h 00m</span></span>
                     <span class="ful-sub">profit / hour</span>
                     <span class="ful-value" id="m6-perhour">₹0.00/h</span>
                 </div>
@@ -431,10 +431,16 @@
                     <span class="client-price-label">your price to client (₹)</span>
                     <span class="client-price-sub">for the whole batch</span>
                 </div>
-                <div class="client-price-cell">
+                <div class="client-price-cell locked" data-lock>
                     <span class="client-price-prefix">₹</span>
-                    <input type="number" id="m6-price" value="50" step="1" inputmode="decimal">
-                    <span class="client-price-unit">per batch</span>
+                    <input type="number" id="m6-price" value="50" step="1" inputmode="decimal" min="0" disabled>
+                    <div class="client-price-tail">
+                        <span class="client-price-unit">per batch</span>
+                        <button type="button" class="lock-toggle" title="double-click to unlock">
+                            <span class="lock-icon lock-closed">🔒</span>
+                            <span class="lock-icon lock-open">🔓</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="client-price-batch">
                     <span class="client-price-batch-label">you charge client</span>

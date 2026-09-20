@@ -369,6 +369,68 @@ body {
     text-align: right;
 }
 
+.part-sell .m5-results {
+    margin-top: 28px;
+    padding: 18px 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--light-gray);
+}
+
+.part-sell .m5-col-head {
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 10px;
+    margin-bottom: 2px;
+}
+
+.part-sell .m5-col-head .ful-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.part-sell .m5-col-head .ful-sub {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--gray);
+}
+
+.part-sell .m5-col-head .ful-value {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+}
+
+.part-sell .m5-grand {
+    border-top: 1px solid var(--accent);
+    border-bottom: none;
+    padding-top: 10px;
+}
+
+.part-sell .m5-grand .ful-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--black);
+}
+
+.part-sell .m5-grand .ful-sub {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray);
+}
+
+.part-sell .m5-grand .ful-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--black);
+}
+
 .part-profit .filament-usage-line {
     display: grid;
     grid-template-columns: 1fr 130px 120px;
@@ -504,8 +566,8 @@ body {
 
 .client-price-cell {
     display: flex;
-    align-items: baseline;
-    gap: 8px;
+    align-items: center;
+    gap: 10px;
     padding: 14px 0 10px;
     border-bottom: 1px solid var(--border);
 }
@@ -539,9 +601,12 @@ body {
     margin: 0;
 }
 
-.client-price-unit {
+.client-price-tail {
     flex: 0 0 auto;
-    padding: 4px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -551,6 +616,13 @@ body {
     border: 1px solid var(--border);
     border-radius: 999px;
     background: var(--light-gray);
+}
+
+.client-price-tail .lock-toggle {
+    margin-left: 0;
+    align-self: center;
+    width: 18px;
+    height: 18px;
 }
 
 .client-price-batch {
@@ -843,6 +915,28 @@ button:focus-visible {
 .input-group.unlocked .lock-toggle {
     color: var(--black);
     opacity: 1;
+}
+
+.client-price-cell.locked .lock-icon.lock-open {
+    display: none;
+}
+
+.client-price-cell.unlocked .lock-icon.lock-open {
+    display: block;
+}
+
+.client-price-cell.unlocked .lock-icon.lock-closed {
+    display: none;
+}
+
+.client-price-cell.unlocked .lock-toggle {
+    color: var(--black);
+    opacity: 1;
+}
+
+.client-price-cell .lock-toggle {
+    align-self: center;
+    margin-left: 2px;
 }
 
 .input-group input {

@@ -369,6 +369,21 @@ body {
     text-align: right;
 }
 
+.part-profit .filament-usage-line {
+    display: grid;
+    grid-template-columns: 1fr 130px 120px;
+    gap: 12px;
+    align-items: baseline;
+}
+
+.part-profit .filament-usage-line .ful-sub {
+    text-align: right;
+}
+
+.part-profit .filament-usage-line .ful-value {
+    text-align: right;
+}
+
 .part-profit .m6-col-head {
     border-bottom: 1px solid var(--accent);
     padding-bottom: 10px;

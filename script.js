@@ -396,7 +396,8 @@ function applyInputRules(id, onChange) {
 ['m1-total-cost', 'm1-units', 'm1-per-unit',
  'm2-units', 'm2-model', 'm2-grams', 'm2-failed',
  'm3-support', 'm3-sand', 'm3-iron', 'm3-rate',
- 'm4-power', 'm4-duty', 'm4-rate', 'm6-price'].forEach(id => applyInputRules(id, renderAll));
+ 'm4-power', 'm4-duty', 'm4-rate'].forEach(id => applyInputRules(id, renderAllAndSync));
+applyInputRules('m6-price', renderAll);
 
 const marginInput = document.getElementById('m6-margin');
 marginInput.addEventListener('input', function () {
@@ -426,11 +427,16 @@ function syncClientPriceWithTarget() {
     }
 }
 
+function renderAllAndSync() {
+    renderAll();
+    syncClientPriceWithTarget();
+}
+
 document.querySelectorAll('select').forEach(select => {
-    select.addEventListener('change', renderAll);
+    select.addEventListener('change', renderAllAndSync);
 });
 
-initStopwatch('sw-print', renderAll);
+initStopwatch('sw-print', renderAllAndSync);
 
 document.addEventListener('dblclick', function (e) {
     const toggle = e.target.closest('.lock-toggle');
@@ -440,10 +446,10 @@ document.addEventListener('dblclick', function (e) {
     const nextLocked = !input.disabled;
     localStorage.setItem('lock-' + input.id, nextLocked ? '1' : '0');
     applyLock(group, input, nextLocked);
-    renderAll();
+    renderAllAndSync();
 });
 
-initLocks(renderAll);
+initLocks(renderAllAndSync);
 renderAll();
 syncClientPriceWithTarget();
 

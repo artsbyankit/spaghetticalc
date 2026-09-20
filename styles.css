@@ -369,6 +369,34 @@ body {
     text-align: right;
 }
 
+.part-profit .m6-col-head {
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 10px;
+    margin-bottom: 2px;
+}
+
+.part-profit .m6-col-head .ful-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.part-profit .m6-col-head .ful-sub {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--gray);
+}
+
+.part-profit .m6-col-head .ful-value {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+}
+
 .part-total-value .batch-total {
     font-size: 13px;
     font-weight: 400;

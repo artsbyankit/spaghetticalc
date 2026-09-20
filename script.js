@@ -403,7 +403,7 @@ marginInput.addEventListener('input', function () {
     const v = parseFloat(this.value);
     if (isNaN(v) && this.value !== '') this.value = '';
     if (!isNaN(v)) this.value = Math.min(500, Math.max(0, v)).toString();
-    renderAll();
+    syncClientPriceWithTarget();
 });
 marginInput.addEventListener('focus', function () {
     this._prev = this.value;
@@ -415,6 +415,16 @@ marginInput.addEventListener('blur', function () {
         renderAll();
     }
 });
+
+function syncClientPriceWithTarget() {
+    renderAll();
+    const el = document.getElementById('m6-price');
+    const v = parseFloat(document.getElementById('m6-suggest-batch').textContent.replace(/[^0-9.-]/g, ''));
+    if (!isNaN(v) && el) {
+        el.value = String(v);
+        renderAll();
+    }
+}
 
 document.querySelectorAll('select').forEach(select => {
     select.addEventListener('change', renderAll);
@@ -435,6 +445,7 @@ document.addEventListener('dblclick', function (e) {
 
 initLocks(renderAll);
 renderAll();
+syncClientPriceWithTarget();
 
 function resetAll() {
     document.querySelectorAll('input[type="number"]').forEach(inp => {
@@ -453,6 +464,7 @@ function resetAll() {
         if (k.startsWith('lock-') || k.startsWith('val-')) localStorage.removeItem(k);
     });
     renderAll();
+    syncClientPriceWithTarget();
 }
 
 document.getElementById('reset-btn').addEventListener('click', resetAll);

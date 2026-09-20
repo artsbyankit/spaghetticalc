@@ -1,6 +1,3 @@
-let filamentMode = localStorage.getItem('filamentMode') || 'bulk';
-let marginPct = parseInt(localStorage.getItem('marginPct') || '35', 10);
-
 function systemTheme() {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'
@@ -36,28 +33,325 @@ function toggleTheme() {
     applyThemeColor(next);
 }
 
-function initLocks() {
+initTheme();
+
+const inrFmt = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+});
+
+const elCache = new Map();
+
+function num(id) {
+    let el = elCache.get(id);
+    if (!el) {
+        el = document.getElementById(id);
+        if (el) elCache.set(id, el);
+    }
+    return el ? (parseFloat(el.value) || 0) : 0;
+}
+
+function initLocks(onChange) {
     document.querySelectorAll('[data-lock]').forEach(group => {
         const input = group.querySelector('input');
         const stored = localStorage.getItem('lock-' + input.id);
         const isLocked = stored != null ? stored === '1' : true;
-        applyLock(group, input, isLocked);
+        applyLock(group, input, isLocked, true);
 
         input.addEventListener('input', () => {
             localStorage.setItem('val-' + input.id, input.value);
+            if (onChange) onChange();
         });
     });
 }
 
-function applyLock(group, input, isLocked) {
+function applyLock(group, input, isLocked, applyStored) {
     input.disabled = isLocked;
     group.classList.toggle('locked', isLocked);
     group.classList.toggle('unlocked', !isLocked);
     group.querySelector('.lock-toggle').title = isLocked ? 'double-click to unlock' : 'double-click to lock';
 
-    const storedVal = localStorage.getItem('val-' + input.id);
-    if (storedVal != null) input.value = storedVal;
+    if (applyStored) {
+        const storedVal = localStorage.getItem('val-' + input.id);
+        if (storedVal != null) input.value = storedVal;
+    }
 }
+
+function computeM1() {
+    const totalCost = num('m1-total-cost');
+    const units = num('m1-units');
+    const perUnitG = num('m1-per-unit');
+    const totalG = units * perUnitG;
+    const totalKg = totalG / 1000;
+    const costPerKg = totalKg > 0 ? totalCost / totalKg : 0;
+    const costPerG = totalG > 0 ? totalCost / totalG : 0;
+    return { totalCost, units, perUnitG, totalKg, costPerG, costPerKg };
+}
+
+function renderM1(m) {
+    const kgText = Number.isInteger(m.totalKg) ? m.totalKg.toString() : m.totalKg.toFixed(3);
+    document.getElementById('m1-total-filament').innerHTML = `${kgText} <span class="per">kg</span>`;
+    document.getElementById('m1-cost-kg').textContent = `${formatINR(m.costPerKg)}/kg`;
+    document.getElementById('m1-cost-g').textContent = `${formatINR(m.costPerG)}/g`;
+
+    const hint = document.getElementById('m1-per-unit-hint');
+    if (hint) {
+        hint.textContent = m.perUnitG > 0 ? `= ${formatKg(m.perUnitG)}` : '';
+    }
+}
+
+function computeM2(costPerG) {
+    const units = num('m2-units');
+    const model = num('m2-model');
+    const gramsPerUnit = num('m2-grams');
+    const failedPct = num('m2-failed');
+
+    const baseGrams = units * gramsPerUnit;
+    const bufferedGrams = baseGrams * (1 + failedPct / 100);
+    const bufferedKg = bufferedGrams / 1000;
+
+    const filamentCostUnit = gramsPerUnit * costPerG;
+    const filamentCostBatch = bufferedGrams * costPerG;
+    const modelCostUnit = units > 0 ? model / units : 0;
+    const modelCostBatch = model;
+
+    return {
+        units, model, gramsPerUnit, failedPct,
+        baseGrams, bufferedGrams, bufferedKg,
+        filamentCostUnit, filamentCostBatch,
+        modelCostUnit, modelCostBatch
+    };
+}
+
+function renderM2(m) {
+    const kgText = Number.isInteger(m.bufferedKg) ? m.bufferedKg.toString() : m.bufferedKg.toFixed(3);
+    document.getElementById('m2-total-filament').innerHTML = `${kgText} <span class="per">kg</span>`;
+    document.getElementById('m2-filament-unit').textContent = `${formatINR(m.filamentCostUnit)}/unit`;
+    document.getElementById('m2-filament-batch').textContent = `${formatINR(m.filamentCostBatch)} batch`;
+    document.getElementById('m2-model-unit').textContent = `${formatINR(m.modelCostUnit)}/unit`;
+    document.getElementById('m2-model-batch').textContent = `${formatINR(m.modelCostBatch)} batch`;
+}
+
+const stopwatchControls = new Map();
+
+function computeM3() {
+    const printH = stopwatchH();
+    const laborMin = num('m3-support') + num('m3-sand') + num('m3-iron');
+    const laborH = laborMin / 60;
+    const prodH = printH + laborH;
+
+    const ratePerDay = num('m3-rate');
+    const dayHours = 24;
+    const ratePerH = ratePerDay / dayHours;
+    const machineCost = printH * ratePerH;
+    const laborCost = laborH * ratePerH;
+    const rateCost = machineCost + laborCost;
+    const total = rateCost;
+
+    return { printH, laborMin, laborH, prodH, ratePerDay, dayHours, ratePerH, machineCost, laborCost, rateCost, total };
+}
+
+function initStopwatch(rootId, onChange) {
+    const root = document.getElementById(rootId);
+    const hEl = root.querySelector('#m3-print-h');
+    const mEl = root.querySelector('#m3-print-m');
+    let h = parseInt(hEl.textContent, 10) || 0;
+    let m = parseInt(mEl.textContent, 10) || 0;
+
+    function paint() {
+        hEl.textContent = String(h).padStart(2, '0');
+        mEl.textContent = String(m).padStart(2, '0');
+    }
+
+    function step(unit, dir) {
+        if (unit === 'h') {
+            h = Math.max(0, Math.min(999, h + dir));
+        } else {
+            m = (m + dir * 15 + 60) % 60;
+            if (m === 60) m = 0;
+        }
+        paint();
+    }
+
+    root.addEventListener('click', function (e) {
+        const btn = e.target.closest('.sw-btn');
+        if (!btn) return;
+        step(btn.dataset.sw, btn.dataset.dir === 'up' ? 1 : -1);
+        if (onChange) onChange();
+    });
+
+    stopwatchControls.set(rootId, { hEl, set(hv, mv) { h = hv; m = mv; paint(); } });
+
+    paint();
+}
+
+function stopwatchH() {
+    const hEl = document.getElementById('m3-print-h');
+    const mEl = document.getElementById('m3-print-m');
+    const h = parseInt(hEl ? hEl.textContent : '0', 10) || 0;
+    const m = parseInt(mEl ? mEl.textContent : '0', 10) || 0;
+    return h + m / 60;
+}
+
+function renderM3(m) {
+    document.getElementById('m3-total').textContent = formatINR(m.total);
+    document.getElementById('m3-prod-time').textContent = `${fmtH(m.prodH)}`;
+    document.getElementById('m3-labor-time').textContent = `${m.laborMin} min`;
+    document.getElementById('m3-rate-cost').textContent = `${formatINR(m.rateCost)}/unit`;
+
+    const hint = document.getElementById('m3-rate-hint');
+    if (hint) hint.textContent = `= ${formatINR(m.ratePerH)}/h · ${m.dayHours} h day`;
+}
+
+function fmtH(h) {
+    const rounded = Math.round(h * 100) / 100;
+    return `${Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(2)} h`;
+}
+
+function computeM4(prodH, units) {
+    const powerW = num('m4-power');
+    const dutyPct = num('m4-duty');
+    const rate = num('m4-rate');
+
+    const kW = powerW / 1000;
+    const kwhUnit = kW * prodH;
+    const kwhBatch = kwhUnit * units;
+    const cf = rate * (1 + dutyPct / 100);
+    const costUnit = kwhUnit * cf;
+    const costBatch = kwhBatch * cf;
+
+    return { powerW, dutyPct, rate, kW, kwhUnit, kwhBatch, costUnit, costBatch };
+}
+
+function renderM4(m) {
+    document.getElementById('m4-total').textContent = formatINR(m.costUnit);
+    document.getElementById('m4-kwh-unit').textContent = `${fmtNum2(m.kwhUnit)} kWh`;
+    document.getElementById('m4-kwh-batch').textContent = `${fmtNum2(m.kwhBatch)} kWh`;
+    document.getElementById('m4-unit').textContent = `${formatINR(m.costUnit)}/unit`;
+    document.getElementById('m4-batch').textContent = `${formatINR(m.costBatch)} batch`;
+}
+
+function fmtNum2(n) {
+    const r = Math.round(n * 100) / 100;
+    return Number.isInteger(r) ? r.toString() : r.toFixed(2);
+}
+
+function computeM5(m1, m2, m3, m4) {
+    const maintainPct = num('m2-maintain');
+    const units = m2.units;
+
+    const materialUnit = m2.filamentCostUnit;
+    const modelUnit = m2.modelCostUnit;
+    const machineUnit = m3.machineCost;
+    const laborUnit = m3.laborCost;
+    const elecUnit = m4.costUnit;
+    const failUnit = m2.filamentCostUnit * m2.failedPct / 100;
+
+    const baseUnit = materialUnit + modelUnit + machineUnit + laborUnit + elecUnit;
+    const maintainUnit = baseUnit * maintainPct / 100;
+    const totalUnit = baseUnit + maintainUnit + failUnit;
+
+    const materialBatch = materialUnit * units;
+    const modelBatch = m2.modelCostBatch;
+    const machineBatch = machineUnit * units;
+    const laborBatch = laborUnit * units;
+    const elecBatch = m4.costBatch;
+    const failBatch = failUnit * units;
+    const maintainBatch = maintainUnit * units;
+    const totalBatch = totalUnit * units;
+
+    return {
+        maintainPct, units,
+        materialUnit, modelUnit, machineUnit, laborUnit, elecUnit, failUnit,
+        maintainUnit, totalUnit,
+        materialBatch, modelBatch, machineBatch, laborBatch, elecBatch, failBatch,
+        maintainBatch, totalBatch
+    };
+}
+
+function renderM5(m) {
+    document.getElementById('m5-material-unit').textContent = `${formatINR(m.materialUnit)}/unit`;
+    document.getElementById('m5-material-batch').textContent = `${formatINR(m.materialBatch)} batch`;
+    document.getElementById('m5-model-unit').textContent = `${formatINR(m.modelUnit)}/unit`;
+    document.getElementById('m5-model-batch').textContent = `${formatINR(m.modelBatch)} batch`;
+    document.getElementById('m5-machine-unit').textContent = `${formatINR(m.machineUnit)}/unit`;
+    document.getElementById('m5-machine-batch').textContent = `${formatINR(m.machineBatch)} batch`;
+    document.getElementById('m5-labor-unit').textContent = `${formatINR(m.laborUnit)}/unit`;
+    document.getElementById('m5-labor-batch').textContent = `${formatINR(m.laborBatch)} batch`;
+    document.getElementById('m5-elec-unit').textContent = `${formatINR(m.elecUnit)}/unit`;
+    document.getElementById('m5-elec-batch').textContent = `${formatINR(m.elecBatch)} batch`;
+    document.getElementById('m5-maintain-unit').textContent = `${formatINR(m.maintainUnit)}/unit`;
+    document.getElementById('m5-maintain-batch').textContent = `${formatINR(m.maintainBatch)} batch`;
+    document.getElementById('m5-fail-unit').textContent = `${formatINR(m.failUnit)}/unit`;
+    document.getElementById('m5-fail-batch').textContent = `${formatINR(m.failBatch)} batch`;
+    document.getElementById('m5-maintain-lbl').textContent = `(${m.maintainPct}%)`;
+    document.getElementById('m5-total-batch').textContent = `${formatINR(m.totalBatch)} batch`;
+    document.getElementById('m5-total-unit').textContent = `${formatINR(m.totalUnit)}/unit`;
+}
+
+function renderAll() {
+    const m1 = computeM1();
+    renderM1(m1);
+    const m2 = computeM2(m1.costPerG);
+    renderM2(m2);
+    const m3 = computeM3();
+    renderM3(m3);
+    const m4 = computeM4(m3.prodH, m2.units);
+    renderM4(m4);
+    renderM5(computeM5(m1, m2, m3, m4));
+}
+
+function formatKg(g) {
+    const kg = g / 1000;
+    return `${Number.isInteger(kg) ? kg.toString() : kg.toFixed(1)} kg`;
+}
+
+const inrFmt4 = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 4,
+    maximumFractionDigits: 4
+});
+
+function formatINR(amount) {
+    if (amount !== 0 && Math.abs(amount) < 0.01) return inrFmt4.format(amount);
+    return inrFmt.format(amount);
+}
+
+function applyInputRules(id, onChange) {
+    const input = document.getElementById(id);
+    input.setAttribute('min', '0');
+    input.addEventListener('input', function () {
+        const v = parseFloat(this.value);
+        if (this.value !== '' && (v < 0 || isNaN(v))) {
+            this.value = v < 0 ? '0' : '';
+        }
+        onChange();
+    });
+    input.addEventListener('focus', function () {
+        this._prev = this.value;
+        this.value = '';
+    });
+    input.addEventListener('blur', function () {
+        if (this.value === '' || this.value == null) {
+            this.value = this._prev != null ? this._prev : '';
+            onChange();
+        }
+    });
+}
+
+['m1-total-cost', 'm1-units', 'm1-per-unit',
+ 'm2-units', 'm2-model', 'm2-grams', 'm2-failed',
+ 'm3-support', 'm3-sand', 'm3-iron', 'm3-rate',
+ 'm4-power', 'm4-duty', 'm4-rate'].forEach(id => applyInputRules(id, renderAll));
+
+document.querySelectorAll('select').forEach(select => {
+    select.addEventListener('change', renderAll);
+});
+
+initStopwatch('sw-print', renderAll);
 
 document.addEventListener('dblclick', function (e) {
     const toggle = e.target.closest('.lock-toggle');
@@ -67,374 +361,29 @@ document.addEventListener('dblclick', function (e) {
     const nextLocked = !input.disabled;
     localStorage.setItem('lock-' + input.id, nextLocked ? '1' : '0');
     applyLock(group, input, nextLocked);
+    renderAll();
 });
 
-function setFilamentMode(mode) {
-    filamentMode = mode;
-    localStorage.setItem('filamentMode', mode);
+initLocks(renderAll);
+renderAll();
 
-    const isBulk = mode === 'bulk';
-    document.getElementById('mode-bulk').classList.toggle('active', isBulk);
-    document.getElementById('mode-perspool').classList.toggle('active', !isBulk);
-    document.getElementById('filament-amount-label').textContent = isBulk ? 'total paid for pack (₹)' : 'price per spool (₹)';
-    document.getElementById('spools-label').textContent = isBulk ? 'spools in pack' : 'spools bought';
-
-    document.getElementById('base-filament').value = 565;
-    document.getElementById('spools').value = 1;
-
-    renderToggleFormula();
-    refreshLive();
-}
-
-function renderToggleFormula() {
-    const el = document.getElementById('toggle-formula');
-    if (filamentMode === 'bulk') {
-        el.innerHTML = '';
-        return;
-    }
-
-    const price = num('base-filament');
-    const spools = num('spools') || 1;
-    const total = price * spools;
-    const fmt = v => v.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-    el.innerHTML = `
-        <span class="formula-num">₹${fmt(price)}</span>${price > 0 ? `<span class="formula-op">×</span><span class="formula-num">${spools} spools</span><span class="formula-op">=</span><span class="formula-result">₹${fmt(total)}</span>` : ''}
-    `;
-}
-
-function formatINR(amount) {
-    return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(amount);
-}
-
-function num(id) {
-    const el = document.getElementById(id);
-    return el ? (parseFloat(el.value) || 0) : 0;
-}
-
-function setText(id, value) {
-    document.getElementById(id).textContent = formatINR(value);
-}
-
-function computeCosts() {
-    // 1. FILAMENT
-    const baseFilament = num('base-filament');
-    const shippingPerSpool = num('shipping-per-spool');
-    const spools = num('spools');
-    const spoolWeight = num('spool-weight');
-    const gramsUsed = num('grams-used');
-
-    const baseSubtotal = filamentMode === 'bulk' ? baseFilament : baseFilament * spools;
-    const shipping = shippingPerSpool * spools;
-    const gstRate = num('gst-rate');
-    const gst = (baseSubtotal + shipping) * (gstRate / 100);
-    const sgst = gst / 2;
-    const cgst = gst / 2;
-    const totalInvoice = baseSubtotal + shipping + gst;
-    const totalWeight = spools * spoolWeight;
-    const costPerGram = totalInvoice / totalWeight;
-
-    const filamentMaterial = (baseSubtotal / totalWeight) * gramsUsed;
-    const shippingAlloc = (shipping / totalWeight) * gramsUsed;
-    const gstAlloc = (gst / totalWeight) * gramsUsed;
-    const filamentTotal = filamentMaterial + shippingAlloc + gstAlloc;
-
-    // 2. ELECTRICITY
-    const baseRate = num('base-rate');
-    const fppas = num('fppas');
-    const duty = num('duty');
-    const watts = num('power');
-    const hours = num('time');
-
-    const powerKW = watts / 1000;
-    const subtotalRate = baseRate + fppas;
-    const effectiveRate = subtotalRate * (1 + duty / 100);
-
-    const elecBase = powerKW * hours * baseRate;
-    const elecFppas = powerKW * hours * fppas;
-    const elecDuty = (elecBase + elecFppas) * (duty / 100);
-    const elecTotal = powerKW * hours * effectiveRate;
-
-    // 3. TIME
-    const daily = num('daily');
-    const rentCost = (hours / 24) * daily;
-
-    // 4. JOB & BATCH
-    const quantity = num('quantity');
-    const modelCost = num('model-cost');
-    const bufferPct = num('buffer');
-    const failedPct = num('failed-buffer');
-    const sale = num('sale');
-
-    const modelAmortized = modelCost / quantity;
-    const bufferCost = (bufferPct / 100) * filamentTotal;
-
-    // 5. POST-PROCESSING (post labor covered by machine + labour day rate)
-    const postMinutes = num('post-support') + num('post-sanding') + num('post-painting');
-    const postCost = (postMinutes / 60 / 24) * daily;
-
-    const subTotal = filamentTotal + elecTotal + rentCost + modelAmortized + bufferCost + postCost;
-    const failBuffer = subTotal * (failedPct / 100);
-    const unitCost = subTotal + failBuffer;
-
-    // 6. SELL IT
-    const margin = marginPct;
-    const marginPrice = margin >= 100 ? unitCost : unitCost / ((100 - margin) / 100);
-
-    // 7. MARKET TIER
-    const tierSelect = document.getElementById('tier-select');
-    const tierAdj = (parseInt(tierSelect ? tierSelect.value : '0', 10) || 0) / 100;
-    const tierPrice = marginPrice * (1 + tierAdj);
-
-    // competitor benchmark
-    const online = num('online-price');
-    const overOnline = online > 0 ? tierPrice - online : 0;
-    const compPct = online > 0 ? ((tierPrice - online) / online) * 100 : null;
-
-    const soldProfit = sale - unitCost;
-    const soldPct = sale > 0 ? (soldProfit / sale) * 100 : 0;
-
-    const effectiveUnitSale = sale > 0 ? sale : tierPrice;
-    const unitProfit = effectiveUnitSale - unitCost;
-
-    // batch summary
-    const totalFilamentUsed = gramsUsed * quantity;
-    const totalRevenue = effectiveUnitSale * quantity;
-    const totalFilamentExpense = totalFilamentUsed * costPerGram;
-    const totalElectricity = elecTotal * quantity;
-    const totalRent = rentCost * quantity;
-    const totalModel = modelCost;
-    const totalBuffer = totalFilamentExpense * (bufferPct / 100);
-    const batchPost = postCost * quantity;
-    const batchSubtotal = totalFilamentExpense + totalElectricity + totalRent + totalModel + totalBuffer + batchPost;
-    const batchFail = batchSubtotal * (failedPct / 100);
-    const totalExpenses = batchSubtotal + batchFail;
-    const netProfit = totalRevenue - totalExpenses;
-
-    return {
-        filamentMaterial, shippingAlloc, gstAlloc, filamentTotal,
-        sgst, cgst, gstTotal: gst,
-        elecBase, elecFppas, elecDuty, elecTotal, rentCost,
-        modelAmortized, bufferCost, postCost, failedPct, failBuffer,
-        tierAdj, tierPrice, online, overOnline, compPct,
-        unitCost, unitProfit,
-        margin, marginPrice, soldProfit, soldPct,
-        effectiveUnitSale, quantity, sale,
-        totalModel, totalBuffer, batchPost, batchFail, totalExpenses, netProfit
-    };
-}
-
-function renderSpoolWeightHint() {
-    const g = num('spool-weight');
-    const hint = document.getElementById('spool-weight-hint');
-    if (g >= 1000) {
-        const kg = g / 1000;
-        const text = Number.isInteger(kg) ? kg.toString() : kg.toFixed(1);
-        hint.textContent = `= ${text} kg`;
-        hint.style.display = 'inline-block';
-    } else {
-        hint.textContent = '';
-        hint.style.display = 'none';
-    }
-}
-
-function renderSectionTotals(c) {
-    const q = c.quantity;
-    const unit = formatINR;
-    document.getElementById('total-materials').innerHTML = `${unit(c.filamentTotal)} <span class="per">/ unit</span> <span class="batch-total">· ${unit(c.filamentTotal * q)} batch</span>`;
-    document.getElementById('total-electricity').innerHTML = `${unit(c.elecTotal)} <span class="per">/ unit</span> <span class="batch-total">· ${unit(c.elecTotal * q)} batch</span>`;
-    document.getElementById('total-time').innerHTML = `${unit(c.rentCost + c.postCost)} <span class="per">/ unit</span> <span class="batch-total">· ${unit((c.rentCost + c.postCost) * q)} batch</span>`;
-    document.getElementById('total-batch').innerHTML = `${unit(c.modelAmortized + c.bufferCost + c.failBuffer)} <span class="per">/ unit</span> <span class="batch-total">· ${unit(c.totalModel + c.totalBuffer + c.batchFail)} batch</span>`;
-}
-
-function renderGstSplit(c) {
-    document.getElementById('sgst-amount').textContent = formatINR(c.sgst);
-    document.getElementById('cgst-amount').textContent = formatINR(c.cgst);
-    document.getElementById('gst-total').textContent = formatINR(c.gstTotal);
-}
-
-function setMargin(pct) {
-    marginPct = pct;
-    localStorage.setItem('marginPct', String(pct));
-    ['20', '35', '50', '75'].forEach(id => {
-        document.getElementById('margin-' + id).classList.toggle('active', parseInt(id, 10) === pct);
+function resetAll() {
+    document.querySelectorAll('input[type="number"]').forEach(inp => {
+        inp.value = inp.defaultValue;
     });
-    refreshLive();
-}
-
-function initMargin() {
-    setMargin(marginPct);
-    const presets = [20, 35, 50, 75];
-    document.getElementById('margin-custom').value = presets.includes(marginPct) ? '' : String(marginPct);
-}
-
-function renderMarginSuggestion(c) {
-    const fmt = formatINR;
-    document.getElementById('sell-cost').textContent = fmt(c.unitCost);
-    document.getElementById('margin-lbl').textContent = c.margin;
-    document.getElementById('margin-suggest').innerHTML = `${fmt(c.marginPrice)} <span class="per">/ unit</span>`;
-
-    const div = (100 - c.margin) / 100;
-    document.getElementById('margin-formula').innerHTML =
-        `<span class="formula-num">${fmt(c.unitCost)}</span><span class="formula-op">÷ ${(div).toFixed(2)}</span><span class="formula-op">=</span><span class="formula-result">${fmt(c.marginPrice)}</span>`;
-
-    const line = document.getElementById('sell-profit-line');
-    if (c.sale > 0) {
-        line.style.display = 'flex';
-        const pct = c.soldPct >= 0 ? `+${c.soldPct.toFixed(1)}%` : `${c.soldPct.toFixed(1)}%`;
-        document.getElementById('sold-price').textContent = fmt(c.sale);
-        const el = document.getElementById('sell-profit');
-        el.textContent = `${fmt(Math.abs(c.soldProfit))} (${pct})`;
-        el.className = 'sell-value ' + (c.soldProfit >= 0 ? 'profit' : 'loss');
-    } else {
-        line.style.display = 'none';
-    }
-}
-
-function renderMarket(c) {
-    const select = document.getElementById('tier-select');
-    const label = select && select.selectedIndex >= 0
-        ? select.options[select.selectedIndex].text.split('—')[0].trim()
-        : 'none';
-    const pct = Math.round(c.tierAdj * 100);
-    document.getElementById('tier-name-badge').textContent = (pct >= 0 ? `(+${pct}%)` : `(${pct}%)`);
-    document.getElementById('tier-price').innerHTML = `${formatINR(c.tierPrice)} <span class="per">/ unit</span>`;
-
-    const deltaPct = c.tierAdj !== 0 ? (c.tierPrice - c.marginPrice) / c.marginPrice * 100 : 0;
-    document.getElementById('tier-recap').innerHTML =
-        `<span class="formula-num">${formatINR(c.marginPrice)}</span>` +
-        (c.tierAdj !== 0 ? `<span class="formula-op"> ${pct >= 0 ? '+' : ''}${pct}%</span><span class="formula-op">=</span><span class="formula-result">${formatINR(c.tierPrice)}</span> <span class="fg-hint">${label} · ${deltaPct >= 0 ? '+' : ''}${deltaPct.toFixed(1)}% vs base</span>` : '');
-
-    const bar = document.getElementById('comp-status');
-    const over = document.getElementById('over-online');
-    if (c.online > 0 && c.compPct != null) {
-        const sign = c.compPct >= 0 ? '+' : '';
-        over.textContent = `${formatINR(c.tierPrice)} · ${sign}${c.compPct.toFixed(1)}% vs online`;
-        if (c.compPct > 0) {
-            bar.textContent = `your price is ${sign}${c.compPct.toFixed(1)}% above online — consider adding value (speed, quality, customization)`;
-            bar.className = 'comp-status warn';
-        } else {
-            bar.textContent = 'good competitive position — at or under online price';
-            bar.className = 'comp-status good';
-        }
-    } else {
-        over.textContent = '—';
-        bar.textContent = 'enter an online price to compare';
-        bar.className = 'comp-status muted';
-    }
-}
-
-function refreshLive() {
-    const c = computeCosts();
-    renderSpoolWeightHint();
-    renderSectionTotals(c);
-    renderGstSplit(c);
-    renderMarginSuggestion(c);
-    renderMarket(c);
-    document.getElementById('live-unit').innerHTML = formatINR(c.unitCost);
-    document.getElementById('live-batch').innerHTML = formatINR(c.totalExpenses);
-}
-
-function calculate() {
-    const c = computeCosts();
-
-    // full breakdown · per unit vs batch
-    const q = c.quantity;
-    setText('sum-film-mat-unit', c.filamentMaterial);
-    setText('sum-film-mat-batch', c.filamentMaterial * q);
-    setText('sum-ship-unit', c.shippingAlloc);
-    setText('sum-ship-batch', c.shippingAlloc * q);
-    setText('sum-gst-unit', c.gstAlloc);
-    setText('sum-gst-batch', c.gstAlloc * q);
-    setText('sum-film-unit', c.filamentTotal);
-    setText('sum-film-batch', c.filamentTotal * q);
-
-    setText('sum-elec-base-unit', c.elecBase);
-    setText('sum-elec-base-batch', c.elecBase * q);
-    setText('sum-elec-fppas-unit', c.elecFppas);
-    setText('sum-elec-fppas-batch', c.elecFppas * q);
-    setText('sum-elec-duty-unit', c.elecDuty);
-    setText('sum-elec-duty-batch', c.elecDuty * q);
-    setText('sum-elec-unit', c.elecTotal);
-    setText('sum-elec-batch', c.elecTotal * q);
-
-    setText('sum-rent-unit', c.rentCost);
-    setText('sum-rent-batch', c.totalRent);
-
-    setText('sum-model-unit', c.modelAmortized);
-    setText('sum-model-batch', c.totalModel);
-    setText('sum-post-unit', c.postCost);
-    setText('sum-post-batch', c.batchPost);
-    setText('sum-fail-unit', c.failBuffer);
-    setText('sum-fail-batch', c.batchFail);
-    setText('sum-buffer-unit', c.bufferCost);
-    setText('sum-buffer-batch', c.totalBuffer);
-
-    setText('sum-cost-unit', c.unitCost);
-    setText('sum-cost-batch', c.totalExpenses);
-    setText('sum-rev-unit', c.effectiveUnitSale);
-    setText('sum-rev-batch', c.totalRevenue);
-    setText('sum-profit-unit', c.unitProfit);
-    setText('sum-profit-batch', c.netProfit);
-
-    document.getElementById('sum-profit-unit').className = 'summary-cell bold-cell ' + (c.unitProfit >= 0 ? 'profit' : 'loss');
-    document.getElementById('sum-profit-batch').className = 'summary-cell bold-cell ' + (c.netProfit >= 0 ? 'profit' : 'loss');
-
-    document.getElementById('results').style.display = 'block';
-}
-
-setFilamentMode(filamentMode);
-initMargin();
-initTheme();
-document.getElementById('base-filament').addEventListener('input', renderToggleFormula);
-document.getElementById('spools').addEventListener('input', renderToggleFormula);
-document.getElementById('margin-custom').addEventListener('input', function () {
-    const v = parseFloat(this.value);
-    if (!v || v <= 0) return;
-    marginPct = Math.min(v, 100);
-    localStorage.setItem('marginPct', String(marginPct));
-    document.querySelectorAll('#margin-toggle .toggle-btn').forEach(btn => btn.classList.remove('active'));
-    refreshLive();
-});
-initLocks();
-document.querySelectorAll('input[type="number"]').forEach(input => {
-    input.addEventListener('input', refreshLive);
-});
-document.getElementById('tier-select').addEventListener('change', refreshLive);
-
-(function () {
-    const seq = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-    let pos = 0;
-
-    function noodleRain() {
-        for (let i = 0; i < 36; i++) {
-            const n = document.createElement('div');
-            n.className = 'noodle';
-            n.textContent = '🍝';
-            n.style.left = Math.random() * 100 + 'vw';
-            n.style.fontSize = (18 + Math.random() * 34) + 'px';
-            n.style.animationDelay = (Math.random() * 1.2) + 's';
-            n.style.setProperty('--drift', (Math.random() * 60 - 30) + 'px');
-            document.body.appendChild(n);
-            setTimeout(() => n.remove(), 3400);
-        }
-    }
-
-    document.addEventListener('keydown', e => {
-        const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-        pos = key === seq[pos] ? pos + 1 : (key === seq[0] ? 1 : 0);
-        if (pos === seq.length) {
-            pos = 0;
-            noodleRain();
-        }
+    document.querySelectorAll('select').forEach(sel => {
+        const firstSelected = Array.from(sel.options).find(o => o.defaultSelected);
+        sel.value = firstSelected ? firstSelected.value : sel.options[0].value;
     });
-
-    document.querySelector('.brand-emoji').addEventListener('dblclick', () => {
-        noodleRain();
+    document.querySelectorAll('[data-lock]').forEach(group => {
+        const input = group.querySelector('input');
+        applyLock(group, input, true);
     });
-})();
+    stopwatchControls.forEach(c => c.set(0, 30));
+    Object.keys(localStorage).forEach(k => {
+        if (k.startsWith('lock-') || k.startsWith('val-')) localStorage.removeItem(k);
+    });
+    renderAll();
+}
+
+document.getElementById('reset-btn').addEventListener('click', resetAll);

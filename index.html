@@ -13,7 +13,7 @@
             } catch (e) {}
         })();
     </script>
-    <meta name="description" content="SpaghettiCalc is a free 3D printing cost and profit calculator built for print businesses. Estimate filament, electricity, time and labour costs per unit, then find the right selling price and profit margin to charge for your 3D print service.">
+    <meta name="description" content="SpaghettiCalc V2 — 3D printing cost and profit calculator. Estimate filament, electricity, time and labour costs per unit, then find the right selling price and profit margin.">
     <meta name="keywords" content="3d print cost calculator, 3d printing business, 3d print pricing calculator, print cost, profit calculator, filament cost, print on demand pricing, 3d printing startup">
     <meta name="author" content="SpaghettiCalc">
     <meta name="robots" content="index, follow">
@@ -23,40 +23,14 @@
     <meta property="og:title" content="SpaghettiCalc — 3D Print Cost & Profit Calculator">
     <meta property="og:description" content="Start or grow a 3D printing business. Calculate the real production cost per unit and know exactly how much to charge for your prints.">
     <meta property="og:url" content="https://artsbyankit.github.io/spaghetticalc/">
-    <meta property="og:image" content="https://artsbyankit.github.io/spaghetticalc/apple-touch-icon.png">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="SpaghettiCalc — 3D Print Cost & Profit Calculator">
     <meta name="twitter:description" content="Calculate the real cost of a 3D print and find the right price to charge for your print service.">
-    <meta name="twitter:image" content="https://artsbyankit.github.io/spaghetticalc/apple-touch-icon.png">
-    <link rel="canonical" href="https://artsbyankit.github.io/spaghetticalc/">
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <link rel="icon" href="favicon.ico" sizes="any">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <title>SpaghettiCalc — 3D Print Cost & Profit Calculator</title>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "SpaghettiCalc",
-      "url": "https://artsbyankit.github.io/spaghetticalc/",
-      "description": "Free 3D printing cost and profit calculator for print businesses. Estimate materials, electricity, time and labour per unit to set profitable prices.",
-      "applicationCategory": "BusinessApplication",
-      "operatingSystem": "Any",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "author": {
-        "@type": "Person",
-        "name": "SpaghettiCalc"
-      }
-    }
-    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <title>SpaghettiCalc — 3D Print Cost & Profit Calculator</title>
 </head>
 <body>
     <nav class="nav">
@@ -77,432 +51,329 @@
         </section>
 
         <section class="calculator">
-            <div class="part part-materials">
+            <section class="part part-materials">
                 <div class="part-head">
                     <span class="part-num">01</span>
                     <div class="part-head-text">
                         <h2 class="part-title">materials</h2>
-                        <p class="part-sub">filament · shipping · GST</p>
+                        <p class="part-sub">cost of the filament</p>
                     </div>
                 </div>
 
                 <div class="calc-grid">
-                    <div class="toggle-wrap">
-                        <div class="toggle">
-                            <button class="toggle-btn" id="mode-bulk" onclick="setFilamentMode('bulk')">bulk pack</button>
-                            <button class="toggle-btn" id="mode-perspool" onclick="setFilamentMode('perspool')">per spool</button>
+                    <div class="input-group">
+                        <label>total invoice paid for filament (₹)</label>
+                        <input type="number" id="m1-total-cost" value="725.7" step="1">
+                    </div>
+
+                    <div class="input-group">
+                        <label>total number of spool with filament</label>
+                        <input type="number" id="m1-units" value="1" step="1">
+                    </div>
+
+                    <div class="input-group locked" data-lock>
+                        <label>
+                            <span>filament per unit (g)</span>
+                            <button type="button" class="lock-toggle" title="double-click to unlock">
+                                <span class="lock-icon lock-closed">🔒</span>
+                                <span class="lock-icon lock-open">🔓</span>
+                            </button>
+                        </label>
+                        <div class="weight-row">
+                            <input type="number" id="m1-per-unit" value="1000" step="1" disabled>
+                            <span class="weight-eq" id="m1-per-unit-hint"></span>
                         </div>
-                        <div class="toggle-formula" id="toggle-formula"></div>
-                    </div>
-
-                    <div class="input-group">
-                        <label id="filament-amount-label">total paid for pack (₹)</label>
-                        <input type="number" id="base-filament" value="565" step="1">
-                    </div>
-
-                    <div class="input-group">
-                        <label id="spools-label">spools in pack</label>
-                        <input type="number" id="spools" value="1" step="1">
-                    </div>
-
-                    <div class="input-group locked" data-lock>
-                        <label>
-                            <span>shipping per spool (₹)</span>
-                            <button type="button" class="lock-toggle" title="double-click to unlock">
-                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
-                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
-                            </button>
-                        </label>
-                        <input type="number" id="shipping-per-spool" value="50" step="1" disabled>
-                    </div>
-
-                    <div class="input-group locked" data-lock>
-                        <label>
-                            <span>GST rate (%)</span>
-                            <button type="button" class="lock-toggle" title="double-click to unlock">
-                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
-                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
-                            </button>
-                        </label>
-                        <input type="number" id="gst-rate" value="18" step="1" disabled>
-                    </div>
-
-                    <div class="gst-split">
-                        <span>SGST 9% · <b id="sgst-amount">₹0.00</b></span>
-                        <span>CGST 9% · <b id="cgst-amount">₹0.00</b></span>
-                        <span class="gst-split-total">GST total · <b id="gst-total">₹0.00</b></span>
-                    </div>
-
-                    <div class="input-group locked" data-lock>
-                        <label>
-                            <span>grams per spool</span>
-                            <button type="button" class="lock-toggle" title="double-click to unlock">
-                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
-                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
-                            </button>
-                        </label>
-                        <input type="number" id="spool-weight" value="1000" step="1" disabled>
-                        <div class="weight-hint" id="spool-weight-hint"></div>
-                    </div>
-
-                    <div class="input-group">
-                        <label>filament used per unit (g)</label>
-                        <input type="number" id="grams-used" value="1" step="0.01">
                     </div>
                 </div>
 
                 <div class="part-total">
-                    <span class="part-total-label">materials</span>
-                    <span class="part-total-value" id="total-materials">₹0.00 <span class="per">/ unit</span></span>
+                    <span class="part-total-label">total filament</span>
+                    <span class="part-total-value" id="m1-total-filament">0 <span class="per">kg</span></span>
+                </div>
+
+                <div class="filament-usage">
+                    <div class="filament-usage-line">
+                        <span class="ful-label">material cost</span>
+                        <span class="ful-value" id="m1-cost-kg">₹0.00/kg</span>
+                    </div>
+                    <div class="filament-usage-line">
+                        <span class="ful-label">material cost</span>
+                        <span class="ful-value" id="m1-cost-g">₹0.00/g</span>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <div class="part part-batch">
-                <div class="part-head">
+        <section class="part part-batch">
+<div class="part-head">
                     <span class="part-num">02</span>
                     <div class="part-head-text">
                         <h2 class="part-title">job & batch</h2>
-                        <p class="part-sub">quantity · model</p>
+                        <p class="part-sub">units · model · failed prints</p>
                     </div>
                 </div>
 
-                <div class="calc-grid">
-                    <div class="input-group">
-                        <label>quantity ordered (units)</label>
-                        <input type="number" id="quantity" value="1" step="1">
-                    </div>
-
-                    <div class="input-group">
-                        <label>3d model cost (one-time ₹)</label>
-                        <input type="number" id="model-cost" value="0" step="1">
-                    </div>
-
-                    <div class="input-group">
-                        <label>failed print buffer (%)</label>
-                        <input type="number" id="failed-buffer" value="8" step="1" min="0" max="100">
-                        <div class="fg-hint">covers ~1 failed print per 12 successful</div>
-                    </div>
+            <div class="calc-grid">
+                <div class="input-group">
+                    <label>number of units (pcs)</label>
+                    <input type="number" id="m2-units" value="1" step="1">
                 </div>
 
-                <div class="part-total">
-                    <span class="part-total-label">job & batch</span>
-                    <span class="part-total-value" id="total-batch">₹0.00 <span class="per">/ unit</span></span>
+                <div class="input-group">
+                    <label>3d model cost (₹)</label>
+                    <input type="number" id="m2-model" value="0" step="1">
+                </div>
+
+                <div class="input-group">
+                    <label>filament used per unit (g)</label>
+                    <input type="number" id="m2-grams" value="10" step="1">
+                </div>
+
+                <div class="input-group locked" data-lock>
+                    <label>
+                        <span>failed print buffer (%)</span>
+                        <button type="button" class="lock-toggle" title="double-click to unlock">
+                            <span class="lock-icon lock-closed">🔒</span>
+                            <span class="lock-icon lock-open">🔓</span>
+                        </button>
+                    </label>
+                    <input type="number" id="m2-failed" value="10" step="1" disabled>
+                </div>
+
+                <div class="input-group wide">
+                    <label>maintenance buffer (%)</label>
+                    <select id="m2-maintain">
+                        <option value="0">0% — skip</option>
+                        <option value="5">5% — light wear</option>
+                        <option value="10" selected>10% — standard upkeep</option>
+                        <option value="15">15% — heavy use</option>
+                        <option value="20">20% — heavy + nozzles</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="part part-time">
-                <div class="part-head">
+            <div class="part-total">
+                <span class="part-total-label">total filament (incl. buffer)</span>
+                <span class="part-total-value" id="m2-total-filament">0 <span class="per">kg</span></span>
+            </div>
+
+            <div class="filament-usage">
+                <div class="filament-usage-line">
+                    <span class="ful-label">filament cost</span>
+                    <span class="ful-value" id="m2-filament-unit">₹0.00/unit</span>
+                    <span class="ful-value" id="m2-filament-batch">₹0.00 batch</span>
+                </div>
+                <div class="filament-usage-line">
+                    <span class="ful-label">model cost</span>
+                    <span class="ful-value" id="m2-model-unit">₹0.00/unit</span>
+                    <span class="ful-sub" id="m2-model-batch">₹0.00 batch</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="part part-time">
+<div class="part-head">
                     <span class="part-num">03</span>
                     <div class="part-head-text">
-                        <h2 class="part-title">time & post-processing</h2>
-                        <p class="part-sub">print · finishing · machine + labour</p>
+                        <h2 class="part-title">time & overheads</h2>
+                        <p class="part-sub">printing · post-processing · labor rate</p>
                     </div>
                 </div>
 
-                <div class="calc-grid">
-                    <div class="input-group">
-                        <label>print time per unit (hrs)</label>
-                        <input type="number" id="time" value="1" step="0.1">
-                    </div>
-
-                    <div class="input-group">
-                        <label>support removal (min)</label>
-                        <input type="number" id="post-support" value="0" step="1">
-                    </div>
-
-                    <div class="input-group">
-                        <label>sanding / finishing (min)</label>
-                        <input type="number" id="post-sanding" value="0" step="1">
-                    </div>
-
-                    <div class="input-group">
-                        <label>painting (if any) (min)</label>
-                        <input type="number" id="post-painting" value="0" step="1">
-                    </div>
-
-                    <div class="input-group locked" data-lock>
-                        <label>
-                            <span>machine + labour (₹/day)</span>
-                            <button type="button" class="lock-toggle" title="double-click to unlock">
-                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
-                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
-                            </button>
-                        </label>
-                        <input type="number" id="daily" value="300" step="1" disabled>
-                    </div>
-
-                    <div class="input-group locked" data-lock>
-                        <label>
-                            <span>maintenance buffer (%)</span>
-                            <button type="button" class="lock-toggle" title="double-click to unlock">
-                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
-                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
-                            </button>
-                        </label>
-                        <input type="number" id="buffer" value="10" step="1" disabled>
-                    </div>
-                </div>
-
-                <div class="part-total">
-                    <span class="part-total-label">time & post-processing</span>
-                    <span class="part-total-value" id="total-time">₹0.00 <span class="per">/ unit</span></span>
-                </div>
-            </div>
-
-            <div class="part part-electricity">
-                <div class="part-head">
-                    <span class="part-num">04</span>
-                    <div class="part-head-text">
-                        <h2 class="part-title">electricity</h2>
-                        <p class="part-sub">DGVCL</p>
-                    </div>
-                </div>
-
-                <div class="calc-grid">
-                    <div class="input-group locked" data-lock>
-                        <label>
-                            <span>base energy rate (₹/kWh)</span>
-                            <button type="button" class="lock-toggle" title="double-click to unlock">
-                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
-                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
-                            </button>
-                        </label>
-                        <input type="number" id="base-rate" value="4.15" step="0.01" disabled>
-                    </div>
-
-                    <div class="input-group locked" data-lock>
-                        <label>
-                            <span>fppas surcharge (₹/kWh)</span>
-                            <button type="button" class="lock-toggle" title="double-click to unlock">
-                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
-                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
-                            </button>
-                        </label>
-                        <input type="number" id="fppas" value="2.70" step="0.01" disabled>
-                    </div>
-
-                    <div class="input-group locked" data-lock>
-                        <label>
-                            <span>electricity duty (%)</span>
-                            <button type="button" class="lock-toggle" title="double-click to unlock">
-                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
-                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
-                            </button>
-                        </label>
-                        <input type="number" id="duty" value="15" step="1" disabled>
-                    </div>
-
-                    <div class="input-group locked" data-lock>
-                        <label>
-                            <span>printer wattage (w)</span>
-                            <button type="button" class="lock-toggle" title="double-click to unlock">
-                                <svg class="lock-icon lock-closed" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.4V4a2.5 2.5 0 0 1 5 0v1.4" stroke="currentColor" stroke-width="1.2"/></svg>
-                                <svg class="lock-icon lock-open" width="11" height="13" viewBox="0 0 11 13" fill="none"><rect x="0.6" y="5.4" width="9.8" height="6.9" stroke="currentColor" stroke-width="1.2"/><path d="M3 6V4a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.2"/></svg>
-                            </button>
-                        </label>
-                        <input type="number" id="power" value="120" step="1" disabled>
-                    </div>
-                </div>
-
-                <div class="part-total">
-                    <span class="part-total-label">electricity</span>
-                    <span class="part-total-value" id="total-electricity">₹0.00 <span class="per">/ unit</span></span>
-                </div>
-            </div>
-
-            <div class="part part-sell">
-                <div class="part-head">
-                    <span class="part-num">05</span>
-                    <div class="part-head-text">
-                        <h2 class="part-title">sell it</h2>
-                        <p class="part-sub">live pricing · profit margin</p>
-                    </div>
-                </div>
-
-                <div class="calc-grid">
-                    <div class="toggle-wrap">
-                        <div class="toggle" id="margin-toggle">
-                            <button class="toggle-btn" id="margin-20" onclick="setMargin(20)" title="minimum viable">20%</button>
-                            <button class="toggle-btn" id="margin-35" onclick="setMargin(35)" title="standard">35%</button>
-                            <button class="toggle-btn" id="margin-50" onclick="setMargin(50)" title="comfortable">50%</button>
-                            <button class="toggle-btn" id="margin-75" onclick="setMargin(75)" title="premium">75%</button>
+            <div class="calc-grid">
+                <div class="input-group">
+                    <label>printing time / unit</label>
+                    <div class="stopwatch" id="sw-print">
+                        <div class="sw-cell">
+                            <button type="button" class="sw-btn" data-sw="h" data-dir="down" tabindex="-1" aria-label="hour down">&lt;</button>
+                            <span class="sw-num" id="m3-print-h">00</span>
+                            <button type="button" class="sw-btn" data-sw="h" data-dir="up" tabindex="-1" aria-label="hour up">&gt;</button>
                         </div>
-                        <input type="number" class="margin-custom" id="margin-custom" placeholder="custom %" step="1" min="1" max="100">
-                        <div class="toggle-formula" id="margin-formula"></div>
-                    </div>
-
-                    <div class="input-group">
-                        <label>already sold it at (₹)</label>
-                        <input type="number" id="sale" value="0" step="1">
-                    </div>
-
-                    <div class="input-group">
-                        <label>online competitor price (₹)</label>
-                        <input type="number" id="online-price" value="0" step="1">
-                        <div class="comp-status" id="comp-status"></div>
+                        <span class="sw-colon">:</span>
+                        <div class="sw-cell">
+                            <button type="button" class="sw-btn" data-sw="m" data-dir="down" tabindex="-1" aria-label="minute down">&lt;</button>
+                            <span class="sw-num" id="m3-print-m">30</span>
+                            <button type="button" class="sw-btn" data-sw="m" data-dir="up" tabindex="-1" aria-label="minute up">&gt;</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="sell-results">
-                    <div class="sell-line">
-                        <span class="sell-label">worst case · your cost</span>
-                        <span class="sell-value" id="sell-cost">₹0.00</span>
-                    </div>
-                    <div class="sell-line">
-                        <span class="sell-label">base price @ <b id="margin-lbl">40</b>% margin</span>
-                        <span class="sell-value" id="margin-suggest">₹0.00 <span class="per">/ unit</span></span>
-                    </div>
-                    <div class="sell-line" id="tier-line">
-                        <span class="sell-label">tier price <b id="tier-name-badge">(none)</b></span>
-                        <span class="sell-value" id="tier-price">₹0.00 <span class="per">/ unit</span></span>
-                    </div>
-                    <div class="sell-line">
-                        <span class="sell-label">online comparison</span>
-                        <span class="sell-value" id="over-online">—</span>
-                    </div>
-                    <div class="sell-line" id="sell-profit-line" style="display: none;">
-                        <span class="sell-label">sold at <b id="sold-price">₹0</b></span>
-                        <span class="sell-value" id="sell-profit">₹0.00</span>
+                <div class="input-group">
+                    <label>support removal / unit (min)</label>
+                    <input type="number" id="m3-support" value="0" step="1">
+                </div>
+
+                <div class="input-group">
+                    <label>sanding / unit (min)</label>
+                    <input type="number" id="m3-sand" value="0" step="1">
+                </div>
+
+                <div class="input-group">
+                    <label>ironing / unit (min)</label>
+                    <input type="number" id="m3-iron" value="0" step="1">
+                </div>
+
+                <div class="input-group locked" data-lock>
+                    <label>
+                        <span>machine + labor rate (₹/day)</span>
+                        <button type="button" class="lock-toggle" title="double-click to unlock">
+                            <span class="lock-icon lock-closed">🔒</span>
+                            <span class="lock-icon lock-open">🔓</span>
+                        </button>
+                    </label>
+                    <div class="weight-row">
+                        <input type="number" id="m3-rate" value="500" step="1" disabled>
+                        <span class="weight-eq" id="m3-rate-hint">= 12 h day</span>
                     </div>
                 </div>
             </div>
 
-            <div class="part part-market">
-                <div class="part-head">
-                    <span class="part-num">06</span>
-                    <div class="part-head-text">
-                        <h2 class="part-title">market tier</h2>
-                        <p class="part-sub">customer type · price adjustment</p>
-                    </div>
+            <div class="part-total">
+                <span class="part-total-label">overheads / unit</span>
+                <span class="part-total-value" id="m3-total">₹0.00</span>
+            </div>
+
+            <div class="filament-usage">
+                <div class="filament-usage-line">
+                    <span class="ful-label">production time / unit</span>
+                    <span class="ful-value" id="m3-prod-time">0 h</span>
+                </div>
+                <div class="filament-usage-line">
+                    <span class="ful-label">labor time / unit</span>
+                    <span class="ful-value" id="m3-labor-time">0 min</span>
+                </div>
+                <div class="filament-usage-line">
+                    <span class="ful-label">machine + labor</span>
+                    <span class="ful-value" id="m3-rate-cost">₹0.00/unit</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="part part-electricity">
+            <div class="part-head">
+                <span class="part-num">04</span>
+                <div class="part-head-text">
+                    <h2 class="part-title">electricity</h2>
+                    <p class="part-sub">power · duty · usage</p>
+                </div>
+            </div>
+
+            <div class="calc-grid">
+                <div class="input-group locked" data-lock>
+                    <label>
+                        <span>printer power (w)</span>
+                        <button type="button" class="lock-toggle" title="double-click to unlock">
+                            <span class="lock-icon lock-closed">🔒</span>
+                            <span class="lock-icon lock-open">🔓</span>
+                        </button>
+                    </label>
+                    <input type="number" id="m4-power" value="120" step="1" disabled>
                 </div>
 
-                <div class="calc-grid">
-                    <div class="input-group wide">
-                        <label>customer type</label>
-                        <select id="tier-select">
-                            <option value="0" selected>local shopkeeper — base price (0%)</option>
-                            <option value="-15">student / hobbyist — −15%</option>
-                            <option value="40">rush order (24hr) — +40%</option>
-                            <option value="60">complex design — +60%</option>
-                            <option value="-10">repeat customer — −10%</option>
-                        </select>
-                    </div>
+                <div class="input-group locked" data-lock>
+                    <label>
+                        <span>electricity duty (%)</span>
+                        <button type="button" class="lock-toggle" title="double-click to unlock">
+                            <span class="lock-icon lock-closed">🔒</span>
+                            <span class="lock-icon lock-open">🔓</span>
+                        </button>
+                    </label>
+                    <input type="number" id="m4-duty" value="15" step="1" disabled>
                 </div>
 
-                <div class="tier-recap" id="tier-recap"></div>
+                <div class="input-group locked" data-lock>
+                    <label>
+                        <span>base electricity rate (₹/kWh)</span>
+                        <button type="button" class="lock-toggle" title="double-click to unlock">
+                            <span class="lock-icon lock-closed">🔒</span>
+                            <span class="lock-icon lock-open">🔓</span>
+                        </button>
+                    </label>
+                    <input type="number" id="m4-rate" value="6.96" step="0.01" disabled>
+                </div>
+            </div>
+
+            <div class="part-total">
+                <span class="part-total-label">electricity / unit</span>
+                <span class="part-total-value" id="m4-total">₹0.00</span>
+            </div>
+
+            <div class="filament-usage">
+                <div class="filament-usage-line">
+                    <span class="ful-label">kwh / unit</span>
+                    <span class="ful-value" id="m4-kwh-unit">0 kWh</span>
+                </div>
+                <div class="filament-usage-line">
+                    <span class="ful-label">kwh / batch</span>
+                    <span class="ful-value" id="m4-kwh-batch">0 kWh</span>
+                </div>
+                <div class="filament-usage-line">
+                    <span class="ful-label">electricity (incl. duty)</span>
+                    <span class="ful-sub" id="m4-unit">₹0.00/unit</span>
+                    <span class="ful-value" id="m4-batch">₹0.00 batch</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="part part-sell">
+            <div class="part-head">
+                <span class="part-num">05</span>
+                <div class="part-head-text">
+                    <h2 class="part-title">total production cost</h2>
+                    <p class="part-sub">material + model + machine + labor + electricity</p>
+                </div>
+            </div>
+
+            <div class="filament-usage">
+                <div class="filament-usage-line">
+                    <span class="ful-label">material cost</span>
+                    <span class="ful-sub" id="m5-material-unit">₹0.00/unit</span>
+                    <span class="ful-value" id="m5-material-batch">₹0.00 batch</span>
+                </div>
+                <div class="filament-usage-line">
+                    <span class="ful-label">3d model cost</span>
+                    <span class="ful-sub" id="m5-model-unit">₹0.00/unit</span>
+                    <span class="ful-value" id="m5-model-batch">₹0.00 batch</span>
+                </div>
+                <div class="filament-usage-line">
+                    <span class="ful-label">machine cost</span>
+                    <span class="ful-sub" id="m5-machine-unit">₹0.00/unit</span>
+                    <span class="ful-value" id="m5-machine-batch">₹0.00 batch</span>
+                </div>
+                <div class="filament-usage-line">
+                    <span class="ful-label">labor & post-processing</span>
+                    <span class="ful-sub" id="m5-labor-unit">₹0.00/unit</span>
+                    <span class="ful-value" id="m5-labor-batch">₹0.00 batch</span>
+                </div>
+                <div class="filament-usage-line">
+                    <span class="ful-label">electricity (incl. duty)</span>
+                    <span class="ful-sub" id="m5-elec-unit">₹0.00/unit</span>
+                    <span class="ful-value" id="m5-elec-batch">₹0.00 batch</span>
+                </div>
+                <div class="filament-usage-line">
+                    <span class="ful-label">maintenance <span id="m5-maintain-lbl">(10%)</span></span>
+                    <span class="ful-sub" id="m5-maintain-unit">₹0.00/unit</span>
+                    <span class="ful-value" id="m5-maintain-batch">₹0.00 batch</span>
+                </div>
+                <div class="filament-usage-line">
+                    <span class="ful-label">failed print buffer</span>
+                    <span class="ful-sub" id="m5-fail-unit">₹0.00/unit</span>
+                    <span class="ful-value" id="m5-fail-batch">₹0.00 batch</span>
+                </div>
             </div>
 
             <div class="print-total">
-                <span class="print-total-label">print total</span>
-                <span class="print-total-value">
-                    <b id="live-unit">₹0.00</b> <span class="per">/ unit</span>
-                    <span class="batch-total">· <b id="live-batch">₹0.00</b> batch</span>
-                </span>
-            </div>
-
-            <button class="calc-btn" onclick="calculate()">calculate</button>
-        </section>
-
-        <section class="results" id="results" style="display: none;">
-            <h2 class="cost-heading">full breakdown · per unit vs batch</h2>
-            <div class="summary-table">
-                <div class="summary-head">
-                    <span class="summary-cell label-cell">line item</span>
-                    <span class="summary-cell">per unit</span>
-                    <span class="summary-cell">batch total</span>
-                </div>
-
-                <div class="summary-row">
-                    <span class="summary-cell label-cell">base filament</span>
-                    <span class="summary-cell" id="sum-film-mat-unit">₹0.00</span>
-                    <span class="summary-cell" id="sum-film-mat-batch">₹0.00</span>
-                </div>
-                <div class="summary-row">
-                    <span class="summary-cell label-cell">shipping allocation</span>
-                    <span class="summary-cell" id="sum-ship-unit">₹0.00</span>
-                    <span class="summary-cell" id="sum-ship-batch">₹0.00</span>
-                </div>
-                <div class="summary-row">
-                    <span class="summary-cell label-cell">GST allocation</span>
-                    <span class="summary-cell" id="sum-gst-unit">₹0.00</span>
-                    <span class="summary-cell" id="sum-gst-batch">₹0.00</span>
-                </div>
-                <div class="summary-row total-row">
-                    <span class="summary-cell label-cell">total filament</span>
-                    <span class="summary-cell bold-cell" id="sum-film-unit">₹0.00</span>
-                    <span class="summary-cell bold-cell" id="sum-film-batch">₹0.00</span>
-                </div>
-
-                <div class="summary-row">
-                    <span class="summary-cell label-cell">base electricity</span>
-                    <span class="summary-cell" id="sum-elec-base-unit">₹0.00</span>
-                    <span class="summary-cell" id="sum-elec-base-batch">₹0.00</span>
-                </div>
-                <div class="summary-row">
-                    <span class="summary-cell label-cell">fppas surcharge</span>
-                    <span class="summary-cell" id="sum-elec-fppas-unit">₹0.00</span>
-                    <span class="summary-cell" id="sum-elec-fppas-batch">₹0.00</span>
-                </div>
-                <div class="summary-row">
-                    <span class="summary-cell label-cell">electricity duty</span>
-                    <span class="summary-cell" id="sum-elec-duty-unit">₹0.00</span>
-                    <span class="summary-cell" id="sum-elec-duty-batch">₹0.00</span>
-                </div>
-                <div class="summary-row total-row">
-                    <span class="summary-cell label-cell">total electricity</span>
-                    <span class="summary-cell bold-cell" id="sum-elec-unit">₹0.00</span>
-                    <span class="summary-cell bold-cell" id="sum-elec-batch">₹0.00</span>
-                </div>
-
-                <div class="summary-row">
-                    <span class="summary-cell label-cell">machine rent</span>
-                    <span class="summary-cell" id="sum-rent-unit">₹0.00</span>
-                    <span class="summary-cell" id="sum-rent-batch">₹0.00</span>
-                </div>
-
-                <div class="summary-row">
-                    <span class="summary-cell label-cell">3d model (amortized)</span>
-                    <span class="summary-cell" id="sum-model-unit">₹0.00</span>
-                    <span class="summary-cell" id="sum-model-batch">₹0.00</span>
-                </div>
-                <div class="summary-row">
-                    <span class="summary-cell label-cell">post-processing</span>
-                    <span class="summary-cell" id="sum-post-unit">₹0.00</span>
-                    <span class="summary-cell" id="sum-post-batch">₹0.00</span>
-                </div>
-                <div class="summary-row total-row">
-                    <span class="summary-cell label-cell">failed print buffer</span>
-                    <span class="summary-cell bold-cell" id="sum-fail-unit">₹0.00</span>
-                    <span class="summary-cell bold-cell" id="sum-fail-batch">₹0.00</span>
-                </div>
-                <div class="summary-row total-row">
-                    <span class="summary-cell label-cell">maintenance buffer</span>
-                    <span class="summary-cell bold-cell" id="sum-buffer-unit">₹0.00</span>
-                    <span class="summary-cell bold-cell" id="sum-buffer-batch">₹0.00</span>
-                </div>
-
-                <div class="summary-row grand-row">
-                    <span class="summary-cell label-cell">total production cost</span>
-                    <span class="summary-cell bold-cell" id="sum-cost-unit">₹0.00</span>
-                    <span class="summary-cell bold-cell" id="sum-cost-batch">₹0.00</span>
-                </div>
-                <div class="summary-row grand-row">
-                    <span class="summary-cell label-cell">revenue (price × qty)</span>
-                    <span class="summary-cell" id="sum-rev-unit">₹0.00</span>
-                    <span class="summary-cell bold-cell" id="sum-rev-batch">₹0.00</span>
-                </div>
-                <div class="summary-row grand-row">
-                    <span class="summary-cell label-cell">net profit</span>
-                    <span class="summary-cell bold-cell" id="sum-profit-unit">₹0.00</span>
-                    <span class="summary-cell bold-cell" id="sum-profit-batch">₹0.00</span>
-                </div>
+                <span class="print-total-label">total production cost</span>
+                <span class="per" id="m5-total-unit"></span>
+                <span class="grand-batch" id="m5-total-batch"></span>
             </div>
         </section>
 
-        </main>
+        <button type="button" class="reset-btn" id="reset-btn">reset all to defaults</button>
+    </main>
 
-    <footer class="footer">
-        <p>made with questionable life choices by <a class="footer-email" href="mailto:artsbyankit@gmail.com" title="email me">ankit</a></p>
+    <footer class="site-footer">
+        <span>made with questionable life choices by ankit</span>
     </footer>
 
     <script src="script.js"></script>

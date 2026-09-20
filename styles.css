@@ -384,6 +384,14 @@ body {
     text-align: right;
 }
 
+.part-profit .m6-results {
+    margin-top: 28px;
+    padding: 18px 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--light-gray);
+}
+
 .part-profit .m6-col-head {
     border-bottom: 1px solid var(--accent);
     padding-bottom: 10px;

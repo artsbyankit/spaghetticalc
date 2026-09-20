@@ -291,27 +291,34 @@ function renderM5(m) {
     document.getElementById('m5-total-unit').textContent = `${formatINR(m.totalUnit)}/unit`;
 }
 
-function computeM6(m5) {
+function computeM6(m5, m3) {
     const priceUnit = num('m6-price');
     const marginPct = num('m6-margin');
     const units = m5.units;
 
     const costUnit = m5.totalUnit;
     const costBatch = m5.totalBatch;
-    const suggestUnit = costUnit * (1 + marginPct / 100);
-    const suggestBatch = suggestUnit * units;
+    const targetProfitUnit = costUnit * (marginPct / 100);
+    const targetProfitBatch = costBatch * (marginPct / 100);
+    const suggestUnit = costUnit + targetProfitUnit;
+    const suggestBatch = costBatch + targetProfitBatch;
     const priceBatch = priceUnit * units;
-    const profitUnit = priceUnit - costUnit;
-    const profitBatch = priceBatch - costBatch;
-    const marginOnPrice = priceUnit > 0 ? (profitUnit / priceUnit) * 100 : 0;
+    const yourProfitUnit = priceUnit - costUnit;
+    const yourProfitBatch = priceBatch - costBatch;
+    const marginOnPrice = priceUnit > 0 ? (yourProfitUnit / priceUnit) * 100 : 0;
+
+    const jobH = m3.prodH * units;
+    const perH = jobH > 0 ? targetProfitBatch / jobH : 0;
 
     return {
         priceUnit, marginPct, units,
         costUnit, costBatch,
+        targetProfitUnit, targetProfitBatch,
         suggestUnit, suggestBatch,
         priceBatch,
-        profitUnit, profitBatch,
-        marginOnPrice
+        yourProfitUnit, yourProfitBatch,
+        marginOnPrice,
+        jobH, perH
     };
 }
 
@@ -322,11 +329,12 @@ function renderM6(m) {
     document.getElementById('m6-suggest-batch').textContent = `${formatINR(m.suggestBatch)} batch`;
     document.getElementById('m6-price-unit').textContent = `${formatINR(m.priceUnit)}/unit`;
     document.getElementById('m6-price-batch').textContent = `${formatINR(m.priceBatch)} batch`;
-    document.getElementById('m6-profit-unit').textContent = `${formatINR(m.profitUnit)}/unit`;
-    document.getElementById('m6-profit-batch').textContent = `${formatINR(m.profitBatch)} batch`;
-    document.getElementById('m6-margin-lbl').textContent = `(${fmtPct(m.marginOnPrice)} of price)`;
-    document.getElementById('m6-profit-per').textContent = `${formatINR(m.profitUnit)}/unit`;
-    document.getElementById('m6-profit-total').textContent = `${formatINR(m.profitBatch)} batch`;
+    document.getElementById('m6-profit-unit').textContent = `${formatINR(m.targetProfitUnit)}/unit`;
+    document.getElementById('m6-profit-batch').textContent = `${formatINR(m.targetProfitBatch)} batch`;
+    document.getElementById('m6-job-h').textContent = `${fmtH(m.jobH)}`;
+    document.getElementById('m6-perhour').textContent = `${formatINR(m.perH)}/h`;
+    document.getElementById('m6-profit-per').textContent = `${formatINR(m.targetProfitUnit)}/unit`;
+    document.getElementById('m6-profit-total').textContent = `${formatINR(m.targetProfitBatch)} batch`;
 }
 
 function fmtPct(n) {
@@ -345,7 +353,7 @@ function renderAll() {
     renderM4(m4);
     const m5 = computeM5(m1, m2, m3, m4);
     renderM5(m5);
-    renderM6(computeM6(m5));
+    renderM6(computeM6(m5, m3));
 }
 
 function formatKg(g) {
@@ -391,6 +399,24 @@ function applyInputRules(id, onChange) {
  'm2-units', 'm2-model', 'm2-grams', 'm2-failed',
  'm3-support', 'm3-sand', 'm3-iron', 'm3-rate',
  'm4-power', 'm4-duty', 'm4-rate', 'm6-price'].forEach(id => applyInputRules(id, renderAll));
+
+const marginInput = document.getElementById('m6-margin');
+marginInput.addEventListener('input', function () {
+    const v = parseFloat(this.value);
+    if (isNaN(v) && this.value !== '') this.value = '';
+    if (!isNaN(v)) this.value = Math.min(500, Math.max(0, v)).toString();
+    renderAll();
+});
+marginInput.addEventListener('focus', function () {
+    this._prev = this.value;
+    this.value = '';
+});
+marginInput.addEventListener('blur', function () {
+    if (this.value === '' || this.value == null) {
+        this.value = this._prev != null ? this._prev : '15';
+        renderAll();
+    }
+});
 
 document.querySelectorAll('select').forEach(select => {
     select.addEventListener('change', renderAll);

@@ -383,25 +383,18 @@
             </div>
 
             <div class="calc-grid">
+                <div class="input-group wide">
+                    <label>target profit margin (%)</label>
+                    <input type="number" id="m6-margin" value="15" min="0" max="500" step="1" inputmode="decimal" title="0 to 500%">
+                </div>
+
                 <div class="input-group">
                     <label>your price to client (₹)/unit</label>
                     <input type="number" id="m6-price" value="50" step="1">
                 </div>
-
-                <div class="input-group wide">
-                    <label>target profit margin (%)</label>
-                    <select id="m6-margin">
-                        <option value="15" selected>15% — small margin</option>
-                        <option value="25">25% — comfortable</option>
-                        <option value="40">40% — healthy</option>
-                        <option value="60">60% — premium</option>
-                        <option value="100">100% — double your cost</option>
-                    </select>
-                </div>
             </div>
 
-            <div class="filament-usage">
-                <div class="filament-usage-line">
+<div class="filament-usage-line">
                     <span class="ful-label">production cost</span>
                     <span class="ful-sub" id="m6-cost-unit">₹0.00/unit</span>
                     <span class="ful-value" id="m6-cost-batch">₹0.00 batch</span>
@@ -417,7 +410,7 @@
                     <span class="ful-value" id="m6-price-batch">₹0.00 batch</span>
                 </div>
                 <div class="filament-usage-line">
-                    <span class="ful-label">profit <span id="m6-margin-lbl">(0%)</span></span>
+                    <span class="ful-label">profit @ target</span>
                     <span class="ful-sub" id="m6-profit-unit">₹0.00/unit</span>
                     <span class="ful-value" id="m6-profit-batch">₹0.00 batch</span>
                 </div>
@@ -427,6 +420,14 @@
                 <span class="print-total-label">you make on this job</span>
                 <span class="per" id="m6-profit-per"></span>
                 <span class="grand-batch" id="m6-profit-total"></span>
+            </div>
+
+            <div class="filament-usage">
+                <div class="filament-usage-line">
+                    <span class="ful-label">job time <span class="ful-label-hint" id="m6-job-h">0 h</span></span>
+                    <span class="ful-sub">profit / hour</span>
+                    <span class="ful-value" id="m6-perhour">₹0.00/h</span>
+                </div>
             </div>
         </section>
 

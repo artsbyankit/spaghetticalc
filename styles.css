@@ -157,13 +157,15 @@ body {
 .part-time      { --accent: #16a394; }
 .part-electricity { --accent: #c9950a; }
 .part-post      { --accent: #7c3aed; }
-.part-sell      { --accent: #1fa55a; }
+.part-sell      { --accent: #d64545; }
 .part-market    { --accent: #d946ef; }
+.part-profit    { --accent: #0d8575; }
 
 :root[data-theme="dark"] .part-electricity { --accent: #eab308; }
 :root[data-theme="dark"] .part-time { --accent: #2dd4bf; }
-:root[data-theme="dark"] .part-sell { --accent: #4ade80; }
+:root[data-theme="dark"] .part-sell { --accent: #f87171; }
 :root[data-theme="dark"] .part-market { --accent: #e879f9; }
+:root[data-theme="dark"] .part-profit { --accent: #2dd4bf; }
 :root[data-theme="dark"] .part-post { --accent: #a78bfa; }
 :root[data-theme="dark"] .part-batch { --accent: #60a5fa; }
 :root[data-theme="dark"] .part-materials { --accent: #fb923c; }

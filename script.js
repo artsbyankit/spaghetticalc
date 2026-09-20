@@ -291,6 +291,49 @@ function renderM5(m) {
     document.getElementById('m5-total-unit').textContent = `${formatINR(m.totalUnit)}/unit`;
 }
 
+function computeM6(m5) {
+    const priceUnit = num('m6-price');
+    const marginPct = num('m6-margin');
+    const units = m5.units;
+
+    const costUnit = m5.totalUnit;
+    const costBatch = m5.totalBatch;
+    const suggestUnit = costUnit * (1 + marginPct / 100);
+    const suggestBatch = suggestUnit * units;
+    const priceBatch = priceUnit * units;
+    const profitUnit = priceUnit - costUnit;
+    const profitBatch = priceBatch - costBatch;
+    const marginOnPrice = priceUnit > 0 ? (profitUnit / priceUnit) * 100 : 0;
+
+    return {
+        priceUnit, marginPct, units,
+        costUnit, costBatch,
+        suggestUnit, suggestBatch,
+        priceBatch,
+        profitUnit, profitBatch,
+        marginOnPrice
+    };
+}
+
+function renderM6(m) {
+    document.getElementById('m6-cost-unit').textContent = `${formatINR(m.costUnit)}/unit`;
+    document.getElementById('m6-cost-batch').textContent = `${formatINR(m.costBatch)} batch`;
+    document.getElementById('m6-suggest-unit').textContent = `${formatINR(m.suggestUnit)}/unit`;
+    document.getElementById('m6-suggest-batch').textContent = `${formatINR(m.suggestBatch)} batch`;
+    document.getElementById('m6-price-unit').textContent = `${formatINR(m.priceUnit)}/unit`;
+    document.getElementById('m6-price-batch').textContent = `${formatINR(m.priceBatch)} batch`;
+    document.getElementById('m6-profit-unit').textContent = `${formatINR(m.profitUnit)}/unit`;
+    document.getElementById('m6-profit-batch').textContent = `${formatINR(m.profitBatch)} batch`;
+    document.getElementById('m6-margin-lbl').textContent = `(${fmtPct(m.marginOnPrice)} of price)`;
+    document.getElementById('m6-profit-per').textContent = `${formatINR(m.profitUnit)}/unit`;
+    document.getElementById('m6-profit-total').textContent = `${formatINR(m.profitBatch)} batch`;
+}
+
+function fmtPct(n) {
+    const r = Math.round(n * 10) / 10;
+    return `${Number.isInteger(r) ? r.toString() : r.toFixed(1)}%`;
+}
+
 function renderAll() {
     const m1 = computeM1();
     renderM1(m1);
@@ -300,7 +343,9 @@ function renderAll() {
     renderM3(m3);
     const m4 = computeM4(m3.prodH, m2.units);
     renderM4(m4);
-    renderM5(computeM5(m1, m2, m3, m4));
+    const m5 = computeM5(m1, m2, m3, m4);
+    renderM5(m5);
+    renderM6(computeM6(m5));
 }
 
 function formatKg(g) {
@@ -345,7 +390,7 @@ function applyInputRules(id, onChange) {
 ['m1-total-cost', 'm1-units', 'm1-per-unit',
  'm2-units', 'm2-model', 'm2-grams', 'm2-failed',
  'm3-support', 'm3-sand', 'm3-iron', 'm3-rate',
- 'm4-power', 'm4-duty', 'm4-rate'].forEach(id => applyInputRules(id, renderAll));
+ 'm4-power', 'm4-duty', 'm4-rate', 'm6-price'].forEach(id => applyInputRules(id, renderAll));
 
 document.querySelectorAll('select').forEach(select => {
     select.addEventListener('change', renderAll);

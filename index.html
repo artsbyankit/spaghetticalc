@@ -13,7 +13,7 @@
             } catch (e) {}
         })();
     </script>
-    <meta name="description" content="SpaghettiCalc V2 — 3D printing cost and profit calculator. Estimate filament, electricity, time and labour costs per unit, then find the right selling price and profit margin.">
+    <meta name="description" content="SpaghettiCalc — 3D printing cost and profit calculator. Estimate filament, electricity, time and labour costs per unit, then find the right selling price and profit markup.">
     <meta name="keywords" content="3d print cost calculator, 3d printing business, 3d print pricing calculator, print cost, profit calculator, filament cost, print on demand pricing, 3d printing startup">
     <meta name="author" content="SpaghettiCalc">
     <meta name="robots" content="index, follow">
@@ -101,7 +101,6 @@
                         <span class="ful-value" id="m1-cost-g">₹0.00/g</span>
                     </div>
                 </div>
-            </div>
         </section>
 
         <section class="part part-batch">
@@ -384,7 +383,7 @@
 
             <div class="calc-grid">
                 <div class="input-group wide">
-                    <label>target profit margin (%)</label>
+                    <label>target profit markup (%)</label>
                     <input type="number" id="m6-margin" value="15" min="0" max="500" step="1" inputmode="decimal" title="0 to 500%">
                 </div>
             </div>
@@ -450,6 +449,7 @@
         </section>
 
         <button type="button" class="reset-btn" id="reset-btn">reset all to defaults</button>
+    </section>
     </main>
 
     <footer class="site-footer">

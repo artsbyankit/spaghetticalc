@@ -143,7 +143,7 @@ function computeM3() {
     const prodH = printH + laborH;
 
     const ratePerDay = num('m3-rate');
-    const dayHours = 24;
+    const dayHours = 12;
     const ratePerH = ratePerDay / dayHours;
     const machineCost = printH * ratePerH;
     const laborCost = laborH * ratePerH;
@@ -205,11 +205,6 @@ function renderM3(m) {
     if (hint) hint.textContent = `= ${formatINR(m.ratePerH)}/h · ${m.dayHours} h day`;
 }
 
-function fmtH(h) {
-    const rounded = Math.round(h * 100) / 100;
-    return `${Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(2)} h`;
-}
-
 function fmtDur(h) {
     const totMin = Math.round(h * 60);
     const hh = Math.floor(totMin / 60);
@@ -254,10 +249,10 @@ function computeM5(m1, m2, m3, m4) {
     const machineUnit = m3.machineCost;
     const laborUnit = m3.laborCost;
     const elecUnit = m4.costUnit;
-    const failUnit = m2.filamentCostUnit * m2.failedPct / 100;
 
     const baseUnit = materialUnit + modelUnit + machineUnit + laborUnit + elecUnit;
     const maintainUnit = baseUnit * maintainPct / 100;
+    const failUnit = baseUnit * m2.failedPct / 100;
     const totalUnit = baseUnit + maintainUnit + failUnit;
 
     const materialBatch = materialUnit * units;
@@ -311,9 +306,6 @@ function computeM6(m5, m3) {
     const coefficient = 1 + marginPct / 100;
     const suggestUnit = costUnit * coefficient;
     const suggestBatch = costBatch * coefficient;
-    const yourProfitUnit = priceUnit - costUnit;
-    const yourProfitBatch = priceBatch - costBatch;
-    const marginOnPrice = priceUnit > 0 ? (yourProfitUnit / priceUnit) * 100 : 0;
 
     const jobH = m3.prodH * units;
     const perH = jobH > 0 ? targetProfitBatch / jobH : 0;
@@ -323,8 +315,6 @@ function computeM6(m5, m3) {
         costUnit, costBatch,
         targetProfitUnit, targetProfitBatch,
         suggestUnit, suggestBatch,
-        yourProfitUnit, yourProfitBatch,
-        marginOnPrice,
         jobH, perH
     };
 }
@@ -341,11 +331,6 @@ function renderM6(m) {
     document.getElementById('m6-price-batch').textContent = `${formatINR(m.priceBatch)} batch`;
     document.getElementById('m6-profit-per').textContent = `${formatINR(m.targetProfitUnit)}/unit`;
     document.getElementById('m6-profit-total').textContent = `${formatINR(m.targetProfitBatch)} batch`;
-}
-
-function fmtPct(n) {
-    const r = Math.round(n * 10) / 10;
-    return `${Number.isInteger(r) ? r.toString() : r.toFixed(1)}%`;
 }
 
 function renderAll() {

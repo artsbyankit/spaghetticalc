@@ -115,7 +115,7 @@ function computeM2(costPerG) {
     const filamentCostUnit = gramsPerUnit * costPerG;
     const filamentCostBatch = bufferedGrams * costPerG;
     const modelCostUnit = units > 0 ? model / units : 0;
-    const modelCostBatch = model;
+    const modelCostBatch = units > 0 ? model : 0;
 
     return {
         units, model, gramsPerUnit, failedPct,
@@ -250,10 +250,10 @@ function computeM5(m1, m2, m3, m4) {
     const laborUnit = m3.laborCost;
     const elecUnit = m4.costUnit;
 
-    const baseUnit = materialUnit + modelUnit + machineUnit + laborUnit + elecUnit;
-    const maintainUnit = baseUnit * maintainPct / 100;
-    const failUnit = baseUnit * m2.failedPct / 100;
-    const totalUnit = baseUnit + maintainUnit + failUnit;
+    const prodBaseUnit = materialUnit + machineUnit + laborUnit + elecUnit;
+    const maintainUnit = prodBaseUnit * maintainPct / 100;
+    const failUnit = prodBaseUnit * m2.failedPct / 100;
+    const totalUnit = prodBaseUnit + modelUnit + maintainUnit + failUnit;
 
     const materialBatch = materialUnit * units;
     const modelBatch = m2.modelCostBatch;
@@ -307,14 +307,19 @@ function computeM6(m5, m3) {
     const suggestUnit = costUnit * coefficient;
     const suggestBatch = costBatch * coefficient;
 
+    const yourProfitUnit = priceUnit - costUnit;
+    const yourProfitBatch = priceBatch - costBatch;
+    const yourMarkupPct = costUnit > 0 ? (yourProfitUnit / costUnit) * 100 : 0;
+
     const jobH = m3.prodH * units;
-    const perH = jobH > 0 ? targetProfitBatch / jobH : 0;
+    const perH = jobH > 0 ? yourProfitBatch / jobH : 0;
 
     return {
         priceUnit, priceBatch, marginPct, units,
         costUnit, costBatch,
         targetProfitUnit, targetProfitBatch,
         suggestUnit, suggestBatch,
+        yourProfitUnit, yourProfitBatch, yourMarkupPct,
         jobH, perH
     };
 }
@@ -329,8 +334,13 @@ function renderM6(m) {
     document.getElementById('m6-job-h').textContent = fmtDur(m.jobH);
     document.getElementById('m6-perhour').textContent = `${formatINR(m.perH)}/h`;
     document.getElementById('m6-price-batch').textContent = `${formatINR(m.priceBatch)} batch`;
-    document.getElementById('m6-profit-per').textContent = `${formatINR(m.targetProfitUnit)}/unit`;
-    document.getElementById('m6-profit-total').textContent = `${formatINR(m.targetProfitBatch)} batch`;
+
+    const isLoss = m.yourProfitBatch < 0;
+    document.getElementById('m6-profit-per').textContent = `${formatINR(m.yourProfitUnit)}/unit`;
+    document.getElementById('m6-profit-total').textContent = `${formatINR(m.yourProfitBatch)} batch`;
+    document.getElementById('m6-perhour').classList.toggle('neg', isLoss);
+    const printTotal = document.querySelector('.print-total');
+    if (printTotal) printTotal.classList.toggle('neg', isLoss);
 }
 
 function renderAll() {

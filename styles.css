@@ -465,6 +465,18 @@ body {
     white-space: nowrap;
 }
 
+.print-total.neg .per,
+.print-total.neg .grand-batch,
+.ful-value.neg {
+    color: #d64545;
+}
+
+:root[data-theme="dark"] .print-total.neg .per,
+:root[data-theme="dark"] .print-total.neg .grand-batch,
+:root[data-theme="dark"] .ful-value.neg {
+    color: #f87171;
+}
+
 .client-price {
     margin-top: 24px;
     padding: 16px;

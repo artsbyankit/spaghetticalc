@@ -1,3 +1,15 @@
+const store = {
+    get(key) {
+        try { return localStorage.getItem(key); } catch (e) { return null; }
+    },
+    set(key, value) {
+        try { localStorage.setItem(key, value); } catch (e) {}
+    },
+    remove(key) {
+        try { localStorage.removeItem(key); } catch (e) {}
+    }
+};
+
 function systemTheme() {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'
@@ -5,14 +17,14 @@ function systemTheme() {
 }
 
 function initTheme() {
-    const stored = localStorage.getItem('theme');
+    const stored = store.get('theme');
     const theme = stored || systemTheme();
     document.documentElement.setAttribute('data-theme', theme);
     applyThemeColor(theme);
 
-    if (!stored) {
+    if (!stored && window.matchMedia) {
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            if (localStorage.getItem('theme')) return;
+            if (store.get('theme')) return;
             const next = e.matches ? 'dark' : 'light';
             document.documentElement.setAttribute('data-theme', next);
             applyThemeColor(next);
@@ -29,7 +41,7 @@ function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme');
     const next = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
+    store.set('theme', next);
     applyThemeColor(next);
 }
 
@@ -41,326 +53,6 @@ const inrFmt = new Intl.NumberFormat('en-IN', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
 });
-
-const elCache = new Map();
-
-function num(id) {
-    let el = elCache.get(id);
-    if (!el) {
-        el = document.getElementById(id);
-        if (el) elCache.set(id, el);
-    }
-    return el ? (parseFloat(el.value) || 0) : 0;
-}
-
-function initLocks(onChange) {
-    document.querySelectorAll('[data-lock]').forEach(group => {
-        const input = group.querySelector('input');
-        const stored = localStorage.getItem('lock-' + input.id);
-        const isLocked = stored != null ? stored === '1' : true;
-        applyLock(group, input, isLocked, true);
-
-        input.addEventListener('input', () => {
-            localStorage.setItem('val-' + input.id, input.value);
-            if (input.id === 'm6-price') return;
-            if (onChange) onChange();
-        });
-    });
-}
-
-function applyLock(group, input, isLocked, applyStored) {
-    input.disabled = isLocked;
-    group.classList.toggle('locked', isLocked);
-    group.classList.toggle('unlocked', !isLocked);
-    group.querySelector('.lock-toggle').title = isLocked ? 'double-click to unlock' : 'double-click to lock';
-
-    if (applyStored) {
-        const storedVal = localStorage.getItem('val-' + input.id);
-        if (storedVal != null) input.value = storedVal;
-    }
-}
-
-function computeM1() {
-    const totalCost = num('m1-total-cost');
-    const units = num('m1-units');
-    const perUnitG = num('m1-per-unit');
-    const totalG = units * perUnitG;
-    const totalKg = totalG / 1000;
-    const costPerKg = totalKg > 0 ? totalCost / totalKg : 0;
-    const costPerG = totalG > 0 ? totalCost / totalG : 0;
-    return { totalCost, units, perUnitG, totalKg, costPerG, costPerKg };
-}
-
-function renderM1(m) {
-    const kgText = Number.isInteger(m.totalKg) ? m.totalKg.toString() : m.totalKg.toFixed(3);
-    document.getElementById('m1-total-filament').innerHTML = `${kgText} <span class="per">kg</span>`;
-    document.getElementById('m1-cost-g').textContent = `${formatINR(m.costPerG)}/g`;
-
-    const hint = document.getElementById('m1-per-unit-hint');
-    if (hint) {
-        hint.textContent = m.perUnitG > 0 ? `= ${formatKg(m.perUnitG)}` : '';
-    }
-}
-
-function computeM2(costPerG) {
-    const units = num('m2-units');
-    const model = num('m2-model');
-    const gramsPerUnit = num('m2-grams');
-    const failedPct = num('m2-failed');
-
-    const baseGrams = units * gramsPerUnit;
-    const bufferedGrams = baseGrams * (1 + failedPct / 100);
-    const bufferedKg = bufferedGrams / 1000;
-
-    const filamentCostUnit = gramsPerUnit * costPerG;
-    const filamentCostBatch = bufferedGrams * costPerG;
-    const modelCostUnit = units > 0 ? model / units : 0;
-    const modelCostBatch = units > 0 ? model : 0;
-
-    return {
-        units, model, gramsPerUnit, failedPct,
-        baseGrams, bufferedGrams, bufferedKg,
-        filamentCostUnit, filamentCostBatch,
-        modelCostUnit, modelCostBatch
-    };
-}
-
-function renderM2(m) {
-    const kgText = Number.isInteger(m.bufferedKg) ? m.bufferedKg.toString() : m.bufferedKg.toFixed(3);
-    document.getElementById('m2-total-filament').innerHTML = `${kgText} <span class="per">kg</span>`;
-    document.getElementById('m2-filament-unit').textContent = `${formatINR(m.filamentCostUnit)}/unit`;
-    document.getElementById('m2-filament-batch').textContent = `${formatINR(m.filamentCostBatch)} batch`;
-    document.getElementById('m2-model-unit').textContent = `${formatINR(m.modelCostUnit)}/unit`;
-    document.getElementById('m2-model-batch').textContent = `${formatINR(m.modelCostBatch)} batch`;
-}
-
-const stopwatchControls = new Map();
-
-function computeM3() {
-    const printH = stopwatchH();
-    const laborMin = num('m3-support') + num('m3-sand') + num('m3-iron');
-    const laborH = laborMin / 60;
-    const prodH = printH + laborH;
-
-    const ratePerDay = num('m3-rate');
-    const dayHours = 12;
-    const ratePerH = ratePerDay / dayHours;
-    const machineCost = printH * ratePerH;
-    const laborCost = laborH * ratePerH;
-    const rateCost = machineCost + laborCost;
-    const total = rateCost;
-
-    return { printH, laborMin, laborH, prodH, ratePerDay, dayHours, ratePerH, machineCost, laborCost, rateCost, total };
-}
-
-function initStopwatch(rootId, onChange) {
-    const root = document.getElementById(rootId);
-    const hEl = root.querySelector('#m3-print-h');
-    const mEl = root.querySelector('#m3-print-m');
-    let h = parseInt(hEl.textContent, 10) || 0;
-    let m = parseInt(mEl.textContent, 10) || 0;
-
-    function paint() {
-        hEl.textContent = String(h).padStart(2, '0');
-        mEl.textContent = String(m).padStart(2, '0');
-    }
-
-    function step(unit, dir) {
-        if (unit === 'h') {
-            h = Math.max(0, Math.min(999, h + dir));
-        } else {
-            m = (m + dir * 15 + 60) % 60;
-            if (m === 60) m = 0;
-        }
-        paint();
-    }
-
-    root.addEventListener('click', function (e) {
-        const btn = e.target.closest('.sw-btn');
-        if (!btn) return;
-        step(btn.dataset.sw, btn.dataset.dir === 'up' ? 1 : -1);
-        if (onChange) onChange();
-    });
-
-    stopwatchControls.set(rootId, { hEl, set(hv, mv) { h = hv; m = mv; paint(); } });
-
-    paint();
-}
-
-function stopwatchH() {
-    const hEl = document.getElementById('m3-print-h');
-    const mEl = document.getElementById('m3-print-m');
-    const h = parseInt(hEl ? hEl.textContent : '0', 10) || 0;
-    const m = parseInt(mEl ? mEl.textContent : '0', 10) || 0;
-    return h + m / 60;
-}
-
-function renderM3(m) {
-    document.getElementById('m3-total').textContent = formatINR(m.total);
-    document.getElementById('m3-prod-time').textContent = fmtDur(m.prodH);
-    document.getElementById('m3-labor-time').textContent = `${m.laborMin} min`;
-    document.getElementById('m3-rate-cost').textContent = `${formatINR(m.rateCost)}/unit`;
-
-    const hint = document.getElementById('m3-rate-hint');
-    if (hint) hint.textContent = `= ${formatINR(m.ratePerH)}/h · ${m.dayHours} h day`;
-}
-
-function fmtDur(h) {
-    const totMin = Math.round(h * 60);
-    const hh = Math.floor(totMin / 60);
-    const mm = totMin % 60;
-    return `${hh}h ${String(mm).padStart(2, '0')}m`;
-}
-
-function computeM4(prodH, units) {
-    const powerW = num('m4-power');
-    const dutyPct = num('m4-duty');
-    const rate = num('m4-rate');
-
-    const kW = powerW / 1000;
-    const kwhUnit = kW * prodH;
-    const kwhBatch = kwhUnit * units;
-    const cf = rate * (1 + dutyPct / 100);
-    const costUnit = kwhUnit * cf;
-    const costBatch = kwhBatch * cf;
-
-    return { powerW, dutyPct, rate, kW, kwhUnit, kwhBatch, costUnit, costBatch };
-}
-
-function renderM4(m) {
-    document.getElementById('m4-total').textContent = formatINR(m.costUnit);
-    document.getElementById('m4-kwh-unit').textContent = `${fmtNum2(m.kwhUnit)} kWh`;
-    document.getElementById('m4-kwh-batch').textContent = `${fmtNum2(m.kwhBatch)} kWh`;
-    document.getElementById('m4-unit').textContent = `${formatINR(m.costUnit)}/unit`;
-    document.getElementById('m4-batch').textContent = `${formatINR(m.costBatch)} batch`;
-}
-
-function fmtNum2(n) {
-    const r = Math.round(n * 100) / 100;
-    return Number.isInteger(r) ? r.toString() : r.toFixed(2);
-}
-
-function computeM5(m1, m2, m3, m4) {
-    const maintainPct = num('m2-maintain');
-    const units = m2.units;
-
-    const materialUnit = m2.filamentCostUnit;
-    const modelUnit = m2.modelCostUnit;
-    const machineUnit = m3.machineCost;
-    const laborUnit = m3.laborCost;
-    const elecUnit = m4.costUnit;
-
-    const prodBaseUnit = materialUnit + machineUnit + laborUnit + elecUnit;
-    const maintainUnit = prodBaseUnit * maintainPct / 100;
-    const failUnit = prodBaseUnit * m2.failedPct / 100;
-    const totalUnit = prodBaseUnit + modelUnit + maintainUnit + failUnit;
-
-    const materialBatch = materialUnit * units;
-    const modelBatch = m2.modelCostBatch;
-    const machineBatch = machineUnit * units;
-    const laborBatch = laborUnit * units;
-    const elecBatch = m4.costBatch;
-    const failBatch = failUnit * units;
-    const maintainBatch = maintainUnit * units;
-    const totalBatch = totalUnit * units;
-
-    return {
-        maintainPct, units,
-        materialUnit, modelUnit, machineUnit, laborUnit, elecUnit, failUnit,
-        maintainUnit, totalUnit,
-        materialBatch, modelBatch, machineBatch, laborBatch, elecBatch, failBatch,
-        maintainBatch, totalBatch
-    };
-}
-
-function renderM5(m) {
-    document.getElementById('m5-material-unit').textContent = `${formatINR(m.materialUnit)}/unit`;
-    document.getElementById('m5-material-batch').textContent = `${formatINR(m.materialBatch)} batch`;
-    document.getElementById('m5-model-unit').textContent = `${formatINR(m.modelUnit)}/unit`;
-    document.getElementById('m5-model-batch').textContent = `${formatINR(m.modelBatch)} batch`;
-    document.getElementById('m5-machine-unit').textContent = `${formatINR(m.machineUnit)}/unit`;
-    document.getElementById('m5-machine-batch').textContent = `${formatINR(m.machineBatch)} batch`;
-    document.getElementById('m5-labor-unit').textContent = `${formatINR(m.laborUnit)}/unit`;
-    document.getElementById('m5-labor-batch').textContent = `${formatINR(m.laborBatch)} batch`;
-    document.getElementById('m5-elec-unit').textContent = `${formatINR(m.elecUnit)}/unit`;
-    document.getElementById('m5-elec-batch').textContent = `${formatINR(m.elecBatch)} batch`;
-    document.getElementById('m5-maintain-unit').textContent = `${formatINR(m.maintainUnit)}/unit`;
-    document.getElementById('m5-maintain-batch').textContent = `${formatINR(m.maintainBatch)} batch`;
-    document.getElementById('m5-fail-unit').textContent = `${formatINR(m.failUnit)}/unit`;
-    document.getElementById('m5-fail-batch').textContent = `${formatINR(m.failBatch)} batch`;
-    document.getElementById('m5-maintain-lbl').textContent = `(${m.maintainPct}%)`;
-    document.getElementById('m5-total-batch').textContent = `${formatINR(m.totalBatch)} batch`;
-    document.getElementById('m5-total-unit').textContent = `${formatINR(m.totalUnit)}/unit`;
-}
-
-function computeM6(m5, m3) {
-    const priceBatch = num('m6-price');
-    const marginPct = num('m6-margin');
-    const units = m5.units;
-
-    const costUnit = m5.totalUnit;
-    const costBatch = m5.totalBatch;
-    const priceUnit = units > 0 ? priceBatch / units : 0;
-    const targetProfitUnit = costUnit * (marginPct / 100);
-    const targetProfitBatch = costBatch * (marginPct / 100);
-    const coefficient = 1 + marginPct / 100;
-    const suggestUnit = costUnit * coefficient;
-    const suggestBatch = costBatch * coefficient;
-
-    const yourProfitUnit = priceUnit - costUnit;
-    const yourProfitBatch = priceBatch - costBatch;
-    const yourMarkupPct = costUnit > 0 ? (yourProfitUnit / costUnit) * 100 : 0;
-
-    const jobH = m3.prodH * units;
-    const perH = jobH > 0 ? yourProfitBatch / jobH : 0;
-
-    return {
-        priceUnit, priceBatch, marginPct, units,
-        costUnit, costBatch,
-        targetProfitUnit, targetProfitBatch,
-        suggestUnit, suggestBatch,
-        yourProfitUnit, yourProfitBatch, yourMarkupPct,
-        jobH, perH
-    };
-}
-
-function renderM6(m) {
-    document.getElementById('m6-cost-unit').textContent = `${formatINR(m.costUnit)}/unit`;
-    document.getElementById('m6-cost-batch').textContent = `${formatINR(m.costBatch)} batch`;
-    document.getElementById('m6-suggest-unit').textContent = `${formatINR(m.suggestUnit)}/unit`;
-    document.getElementById('m6-suggest-batch').textContent = `${formatINR(m.suggestBatch)} batch`;
-    document.getElementById('m6-profit-unit').textContent = `${formatINR(m.targetProfitUnit)}/unit`;
-    document.getElementById('m6-profit-batch').textContent = `${formatINR(m.targetProfitBatch)} batch`;
-    document.getElementById('m6-job-h').textContent = fmtDur(m.jobH);
-    document.getElementById('m6-perhour').textContent = `${formatINR(m.perH)}/h`;
-    document.getElementById('m6-price-batch').textContent = `${formatINR(m.priceBatch)} batch`;
-
-    const isLoss = m.yourProfitBatch < 0;
-    document.getElementById('m6-profit-per').textContent = `${formatINR(m.yourProfitUnit)}/unit`;
-    document.getElementById('m6-profit-total').textContent = `${formatINR(m.yourProfitBatch)} batch`;
-    document.getElementById('m6-perhour').classList.toggle('neg', isLoss);
-    const printTotal = document.querySelector('.print-total');
-    if (printTotal) printTotal.classList.toggle('neg', isLoss);
-}
-
-function renderAll() {
-    const m1 = computeM1();
-    renderM1(m1);
-    const m2 = computeM2(m1.costPerG);
-    renderM2(m2);
-    const m3 = computeM3();
-    renderM3(m3);
-    const m4 = computeM4(m3.prodH, m2.units);
-    renderM4(m4);
-    const m5 = computeM5(m1, m2, m3, m4);
-    renderM5(m5);
-    renderM6(computeM6(m5, m3));
-}
-
-function formatKg(g) {
-    const kg = g / 1000;
-    return `${Number.isInteger(kg) ? kg.toString() : kg.toFixed(1)} kg`;
-}
 
 const inrFmt4 = new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -374,128 +66,400 @@ function formatINR(amount) {
     return inrFmt.format(amount);
 }
 
-function applyInputRules(id, onChange) {
-    const input = document.getElementById(id);
-    input.setAttribute('min', '0');
-    input.addEventListener('input', function () {
-        const v = parseFloat(this.value);
-        if (this.value !== '' && (v < 0 || isNaN(v))) {
-            this.value = v < 0 ? '0' : '';
+function fmtNum2(n) {
+    const r = Math.round(n * 100) / 100;
+    return Number.isInteger(r) ? r.toString() : r.toFixed(2);
+}
+
+function fmtPct(n) {
+    return `${Math.round(n * 10) / 10}%`;
+}
+
+function fmtDur(h) {
+    const totMin = Math.round(h * 60);
+    const hh = Math.floor(totMin / 60);
+    const mm = totMin % 60;
+    return `${hh}h ${String(mm).padStart(2, '0')}m`;
+}
+
+function formatWeight(g) {
+    return g < 1000 ? `${fmtNum2(g)} g` : `${fmtNum2(g / 1000)} kg`;
+}
+
+const elCache = new Map();
+
+function el(id) {
+    let node = elCache.get(id);
+    if (!node) {
+        node = document.getElementById(id);
+        if (node) elCache.set(id, node);
+    }
+    return node;
+}
+
+function setText(id, text) {
+    const node = el(id);
+    if (node.textContent !== text) node.textContent = text;
+}
+
+function num(id) {
+    return Math.max(0, parseFloat(el(id).value) || 0);
+}
+
+const FIELD_IDS = [
+    'm1-total-cost', 'm1-units', 'm1-per-unit',
+    'm2-units', 'm2-model', 'm2-grams', 'm2-failed', 'm2-maintain',
+    'm3-print-h', 'm3-print-m', 'm3-support', 'm3-sand', 'm3-iron', 'm3-rate',
+    'm4-power', 'm4-duty', 'm4-rate',
+    'm6-margin', 'm6-round', 'm6-price'
+];
+const MAX_PRINT_HOURS = 999;
+const lastValid = new Map();
+
+function readState() {
+    return {
+        invoice: num('m1-total-cost'), spools: num('m1-units'), spoolGrams: num('m1-per-unit'),
+        units: num('m2-units'), model: num('m2-model'), grams: num('m2-grams'),
+        failedPct: num('m2-failed'), maintainPct: num('m2-maintain'),
+        printH: num('m3-print-h'), printM: num('m3-print-m'),
+        support: num('m3-support'), sand: num('m3-sand'), iron: num('m3-iron'), ratePerDay: num('m3-rate'),
+        powerW: num('m4-power'), dutyPct: num('m4-duty'), elecRate: num('m4-rate'),
+        markupPct: num('m6-margin'), roundTo: num('m6-round'),
+        priceManual: !el('m6-price').disabled, price: num('m6-price')
+    };
+}
+
+let current = null;
+
+function renderAll() {
+    const s = readState();
+    const r = SpaghettiCalc.computeAll(s);
+    current = r;
+    if (!s.priceManual) el('m6-price').value = fmtNum2(r.m6.priceBatch);
+    renderM1(r.m1);
+    renderM2(r.m2);
+    renderM3(r.m3);
+    renderM4(r.m4);
+    renderM5(r.m5, s.maintainPct);
+    renderM6(r.m6);
+    renderSummary(r, s.priceManual);
+}
+
+function renderM1(m) {
+    setText('m1-total-filament', formatWeight(m.totalG));
+    setText('m1-cost-g', `${formatINR(m.costPerG)}/g`);
+    const grams = num('m1-per-unit');
+    setText('m1-per-unit-hint', grams > 0 ? `= ${formatWeight(grams)}` : '');
+}
+
+function renderM2(m) {
+    setText('m2-total-filament', formatWeight(m.bufferedGrams));
+    setText('m2-filament-unit', `${formatINR(m.filamentCostUnit)}/unit`);
+    setText('m2-filament-batch', `${formatINR(m.filamentCostBatch)} batch`);
+    setText('m2-model-unit', `${formatINR(m.modelCostUnit)}/unit`);
+    setText('m2-model-batch', `${formatINR(m.modelCostBatch)} batch`);
+}
+
+function renderM3(m) {
+    setText('m3-total', formatINR(m.total));
+    setText('m3-prod-time', fmtDur(m.prodH));
+    setText('m3-labor-time', `${fmtNum2(m.laborMin)} min`);
+    setText('m3-rate-cost', `${formatINR(m.total)}/unit`);
+    setText('m3-rate-hint', `= ${formatINR(m.ratePerH)}/h · ${m.dayHours} h day`);
+}
+
+function renderM4(m) {
+    setText('m4-total', formatINR(m.costUnit));
+    setText('m4-kwh-unit', `${fmtNum2(m.kwhUnit)} kWh`);
+    setText('m4-kwh-batch', `${fmtNum2(m.kwhBatch)} kWh`);
+    setText('m4-unit', `${formatINR(m.costUnit)}/unit`);
+    setText('m4-batch', `${formatINR(m.costBatch)} batch`);
+}
+
+function renderM5(m, maintainPct) {
+    m.parts.forEach(p => {
+        setText(`m5-${p.key}-unit`, formatINR(p.unit));
+        setText(`m5-${p.key}-batch`, formatINR(p.batch));
+    });
+    setText('m5-maintain-lbl', `(${maintainPct}%)`);
+    setText('m5-total-unit', formatINR(m.totalUnit));
+    setText('m5-total-batch', formatINR(m.totalBatch));
+    renderBreakdown(m);
+}
+
+function renderBreakdown(m) {
+    let top = null;
+    m.parts.forEach(p => {
+        const seg = el(`bar-${p.key}`);
+        seg.style.flexGrow = p.share;
+        seg.hidden = p.share <= 0;
+        seg.dataset.tip = `${p.label}: ${fmtPct(p.share * 100)} · ${formatINR(p.batch)} batch`;
+        setText(`legend-${p.key}`, fmtPct(p.share * 100));
+        if (!top || p.share > top.share) top = p;
+    });
+    setText('m5-driver', top && top.share > 0
+        ? `biggest cost: ${top.label}, ${fmtPct(top.share * 100)} of the job`
+        : 'nothing to break down yet');
+}
+
+function renderM6(m) {
+    setText('m6-cost-unit', formatINR(current.m5.totalUnit));
+    setText('m6-cost-batch', formatINR(current.m5.totalBatch));
+    setText('m6-suggest-unit', formatINR(m.suggestUnit));
+    setText('m6-suggest-batch', formatINR(m.suggestBatch));
+    setText('m6-profit-unit', formatINR(m.targetProfitUnit));
+    setText('m6-profit-batch', formatINR(m.targetProfitBatch));
+    setText('m6-real-markup', fmtPct(m.markupPct));
+    setText('m6-real-margin', fmtPct(m.marginPct));
+    setText('m6-job-h', fmtDur(m.jobH));
+    setText('m6-perhour', `${formatINR(m.perH)}/h`);
+    setText('m6-price-batch', `${formatINR(m.priceBatch)} batch`);
+    setText('m6-price-unit', `${formatINR(m.priceUnit)}/unit`);
+    setText('m6-profit-per', `${formatINR(m.profitUnit)}/unit`);
+    setText('m6-profit-total', `${formatINR(m.profitBatch)} batch`);
+
+    const isLoss = m.profitBatch < 0;
+    el('m6-perhour').classList.toggle('neg', isLoss);
+    el('m6-print-total').classList.toggle('neg', isLoss);
+    el('m6-round').disabled = !el('m6-price').disabled;
+    el('quote-btn').disabled = m.units <= 0;
+}
+
+let warningsKey = '';
+
+function renderSummary(r, priceManual) {
+    const m = r.m6;
+    setText('sum-cost', formatINR(r.m5.totalBatch));
+    setText('sum-price', formatINR(m.priceBatch));
+    setText('sum-price-label', priceManual ? 'your price' : 'price · auto');
+    setText('sum-profit', formatINR(m.profitBatch));
+    el('sum-profit').classList.toggle('neg', m.profitBatch < 0);
+    setText('sum-meta', `${fmtPct(m.markupPct)} markup · ${fmtPct(m.marginPct)} margin · ${formatINR(m.perH)}/h`);
+
+    const key = r.warnings.map(w => w.field).join();
+    if (key === warningsKey) return;
+    warningsKey = key;
+    const box = el('sum-warnings');
+    box.textContent = '';
+    r.warnings.forEach(w => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'sum-warning';
+        btn.dataset.field = w.field;
+        btn.textContent = `⚠ ${w.text}`;
+        box.appendChild(btn);
+    });
+}
+
+function persist(input) {
+    store.set('val-' + input.id, input.value);
+}
+
+function normalizePrintTime() {
+    const total = Math.min(
+        MAX_PRINT_HOURS * 60 + 59,
+        Math.round(num('m3-print-h') * 60 + num('m3-print-m'))
+    );
+    el('m3-print-h').value = Math.floor(total / 60);
+    el('m3-print-m').value = total % 60;
+    persist(el('m3-print-h'));
+    persist(el('m3-print-m'));
+    lastValid.set('m3-print-h', el('m3-print-h').value);
+    lastValid.set('m3-print-m', el('m3-print-m').value);
+}
+
+function initFields() {
+    FIELD_IDS.forEach(id => {
+        const input = el(id);
+        const stored = store.get('val-' + id);
+        if (stored != null && stored !== '') input.value = stored;
+        lastValid.set(id, input.value);
+    });
+
+    const calculator = document.querySelector('.calculator');
+
+    calculator.addEventListener('input', e => {
+        const input = e.target;
+        if (!FIELD_IDS.includes(input.id)) return;
+        // a blank field mid-edit keeps the last result until something is typed
+        if (input.value === '') return;
+        if (parseFloat(input.value) < 0) input.value = '0';
+        if (input.id === 'm6-margin' && parseFloat(input.value) > SpaghettiCalc.MAX_MARKUP) {
+            input.value = String(SpaghettiCalc.MAX_MARKUP);
         }
-        onChange();
+        lastValid.set(input.id, input.value);
+        persist(input);
+        renderAll();
     });
-    input.addEventListener('focus', function () {
-        this._prev = this.value;
-        this.value = '';
+
+    calculator.addEventListener('focusin', e => {
+        if (e.target.matches('input[type="number"]')) e.target.select();
     });
-    input.addEventListener('blur', function () {
-        if (this.value === '' || this.value == null) {
-            this.value = this._prev != null ? this._prev : '';
-            onChange();
+
+    calculator.addEventListener('focusout', e => {
+        const input = e.target;
+        if (!FIELD_IDS.includes(input.id)) return;
+        if (input.value === '') input.value = lastValid.get(input.id);
+        if (input.id === 'm2-units') {
+            input.value = Math.floor(num('m2-units'));
+            persist(input);
         }
+        if (input.id === 'm3-print-h' || input.id === 'm3-print-m') normalizePrintTime();
+        renderAll();
     });
 }
 
-['m1-total-cost', 'm1-units', 'm1-per-unit',
- 'm2-units', 'm2-model', 'm2-grams', 'm2-failed',
- 'm3-support', 'm3-sand', 'm3-iron', 'm3-rate',
- 'm4-power', 'm4-duty', 'm4-rate'].forEach(id => applyInputRules(id, renderAllAndSync));
-
-const priceInput = document.getElementById('m6-price');
-priceInput.setAttribute('min', '0');
-priceInput.addEventListener('input', function () {
-    let v = parseFloat(this.value);
-    if (this.value !== '' && (v < 0 || isNaN(v))) this.value = v < 0 ? '0' : '';
-    if (this.disabled) return;
-    const costBatch = parseFloat(document.getElementById('m6-cost-batch').textContent.replace(/[^0-9.-]/g, '')) || 0;
-    const priceBatch = parseFloat(this.value) || 0;
-    const margin = costBatch > 0 ? (priceBatch / costBatch - 1) * 100 : 0;
-    document.getElementById('m6-margin').value = String(Math.min(500, Math.max(0, Math.round(margin * 10) / 10)));
-    renderAll();
-});
-priceInput.addEventListener('focus', function () {
-    this._prev = this.value;
-    this.value = '';
-});
-priceInput.addEventListener('blur', function () {
-    if (this.value === '' || this.value == null) {
-        this.value = this._prev != null ? this._prev : '0';
+function initStopwatch() {
+    el('sw-print').addEventListener('click', e => {
+        const btn = e.target.closest('.sw-btn');
+        if (!btn) return;
+        const delta = (btn.dataset.sw === 'h' ? 60 : 15) * (btn.dataset.dir === 'up' ? 1 : -1);
+        el('m3-print-m').value = Math.max(0, num('m3-print-h') * 60 + num('m3-print-m') + delta);
+        el('m3-print-h').value = 0;
+        normalizePrintTime();
         renderAll();
-    }
-});
-
-const marginInput = document.getElementById('m6-margin');
-marginInput.addEventListener('input', function () {
-    const v = parseFloat(this.value);
-    if (isNaN(v) && this.value !== '') this.value = '';
-    if (!isNaN(v)) this.value = Math.min(500, Math.max(0, v)).toString();
-    syncClientPriceWithTarget();
-});
-marginInput.addEventListener('focus', function () {
-    this._prev = this.value;
-    this.value = '';
-});
-marginInput.addEventListener('blur', function () {
-    if (this.value === '' || this.value == null) {
-        this.value = this._prev != null ? this._prev : '15';
-        renderAll();
-    }
-});
-
-function syncClientPriceWithTarget() {
-    renderAll();
-    const el = document.getElementById('m6-price');
-    const v = parseFloat(document.getElementById('m6-suggest-batch').textContent.replace(/[^0-9.-]/g, ''));
-    if (!isNaN(v) && el) {
-        el.value = String(v);
-        renderAll();
-    }
+    });
 }
 
-function renderAllAndSync() {
-    renderAll();
-    syncClientPriceWithTarget();
-}
-
-document.querySelectorAll('select').forEach(select => {
-    select.addEventListener('change', renderAllAndSync);
-});
-
-initStopwatch('sw-print', renderAllAndSync);
-
-document.addEventListener('dblclick', function (e) {
-    const toggle = e.target.closest('.lock-toggle');
-    if (!toggle) return;
-    const group = toggle.closest('[data-lock]');
+function applyLock(group, isLocked) {
     const input = group.querySelector('input');
-    const nextLocked = !input.disabled;
-    localStorage.setItem('lock-' + input.id, nextLocked ? '1' : '0');
-    applyLock(group, input, nextLocked);
-    renderAllAndSync();
-}, true);
+    const toggle = group.querySelector('.lock-toggle');
+    input.disabled = isLocked;
+    group.classList.toggle('locked', isLocked);
+    group.classList.toggle('unlocked', !isLocked);
+    toggle.title = isLocked ? 'click to unlock' : 'click to lock';
+    toggle.setAttribute('aria-label', toggle.title);
+    toggle.setAttribute('aria-pressed', String(isLocked));
+}
 
-initLocks(renderAllAndSync);
-renderAll();
-syncClientPriceWithTarget();
-
-function resetAll() {
-    document.querySelectorAll('input[type="number"]').forEach(inp => {
-        inp.value = inp.defaultValue;
+function initLocks() {
+    document.querySelectorAll('[data-lock]').forEach(group => {
+        const input = group.querySelector('input');
+        applyLock(group, store.get('lock-' + input.id) !== '0');
     });
-    document.querySelectorAll('select').forEach(sel => {
-        const firstSelected = Array.from(sel.options).find(o => o.defaultSelected);
-        sel.value = firstSelected ? firstSelected.value : sel.options[0].value;
+
+    document.querySelector('.calculator').addEventListener('click', e => {
+        const toggle = e.target.closest('.lock-toggle');
+        if (!toggle) return;
+        // a toggle sits inside a label, which must not also fire
+        e.preventDefault();
+        const group = toggle.closest('[data-lock]');
+        const input = group.querySelector('input');
+        const nextLocked = !input.disabled;
+        store.set('lock-' + input.id, nextLocked ? '1' : '0');
+        applyLock(group, nextLocked);
+        if (!nextLocked) input.focus();
+        persist(input);
+        renderAll();
+    });
+}
+
+function initWarnings() {
+    el('sum-warnings').addEventListener('click', e => {
+        const btn = e.target.closest('.sum-warning');
+        if (!btn) return;
+        const input = el(btn.dataset.field);
+        input.scrollIntoView({ block: 'center' });
+        if (!input.disabled) input.focus({ preventScroll: true });
+    });
+}
+
+function initBarTooltip() {
+    const bar = el('m5-bar');
+    const tip = el('m5-tip');
+    bar.addEventListener('pointermove', e => {
+        const seg = e.target.closest('.bar-seg');
+        if (!seg) return;
+        const box = bar.getBoundingClientRect();
+        tip.textContent = seg.dataset.tip;
+        tip.hidden = false;
+        const half = tip.offsetWidth / 2;
+        tip.style.left = `${Math.max(half, Math.min(box.width - half, e.clientX - box.left))}px`;
+    });
+    bar.addEventListener('pointerleave', () => { tip.hidden = true; });
+}
+
+let toastTimer = null;
+
+function showToast(text, undo) {
+    const toast = el('toast');
+    setText('toast-text', text);
+    const btn = el('toast-undo');
+    btn.hidden = !undo;
+    btn.onclick = () => {
+        if (undo) undo();
+        toast.hidden = true;
+    };
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toast.hidden = true; }, undo ? 8000 : 2500);
+}
+
+function buildQuote() {
+    const m = current.m6;
+    return [
+        '3D print quote',
+        `quantity: ${m.units} pcs`,
+        `price per piece: ${formatINR(m.priceUnit)}`,
+        `total: ${formatINR(m.priceBatch)}`,
+        `production time: ${fmtDur(m.jobH)}`
+    ].join('\n');
+}
+
+async function copyQuote() {
+    const text = buildQuote();
+    try {
+        await navigator.clipboard.writeText(text);
+        showToast('quote copied, paste it to your client');
+    } catch (e) {
+        showToast('could not copy, your browser blocked the clipboard');
+    }
+}
+
+function snapshot() {
+    return FIELD_IDS.map(id => [id, el(id).value, el(id).disabled]);
+}
+
+function restore(snap) {
+    snap.forEach(([id, value]) => {
+        el(id).value = value;
+        lastValid.set(id, value);
+        persist(el(id));
     });
     document.querySelectorAll('[data-lock]').forEach(group => {
         const input = group.querySelector('input');
-        applyLock(group, input, true);
-    });
-    stopwatchControls.forEach(c => c.set(0, 30));
-    Object.keys(localStorage).forEach(k => {
-        if (k.startsWith('lock-') || k.startsWith('val-')) localStorage.removeItem(k);
+        const isLocked = snap.find(([id]) => id === input.id)[2];
+        store.set('lock-' + input.id, isLocked ? '1' : '0');
+        applyLock(group, isLocked);
     });
     renderAll();
-    syncClientPriceWithTarget();
 }
 
-document.getElementById('reset-btn').addEventListener('click', resetAll);
+function resetAll() {
+    const before = snapshot();
+    FIELD_IDS.forEach(id => {
+        const input = el(id);
+        if (input.tagName === 'SELECT') {
+            const selected = Array.from(input.options).find(o => o.defaultSelected);
+            input.value = selected ? selected.value : input.options[0].value;
+        } else {
+            input.value = input.defaultValue;
+        }
+        lastValid.set(id, input.value);
+        store.remove('val-' + id);
+        store.remove('lock-' + id);
+    });
+    document.querySelectorAll('[data-lock]').forEach(group => applyLock(group, true));
+    renderAll();
+    showToast('everything is back to defaults', () => restore(before));
+}
+
+initFields();
+initLocks();
+initStopwatch();
+initWarnings();
+initBarTooltip();
+renderAll();
+
+el('reset-btn').addEventListener('click', resetAll);
+el('quote-btn').addEventListener('click', copyQuote);
